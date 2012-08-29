@@ -56,7 +56,7 @@ def apps(request):
 
 def get_plist(request, app_name, app_version):
 
-    utils.plist_from_ipa(settings.STATIC_ROOT + app_name + "-" + app_version + ".ipa", app_name)
+    parsed_dict = utils.plist_from_ipa(settings.STATIC_ROOT + app_name + "-" + app_version + ".ipa", app_name)
 
     url = "http://%s/apps/ipa/%s/%s" % (request.get_host(), app_name, app_version) 
     bundle_id = parsed_dict['CFBundleIdentifier']
