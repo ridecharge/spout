@@ -10,6 +10,8 @@ class App(models.Model):
 
     def __unicode__(self):
         return "%s - %s" % (self.name, self.version)
+    class Meta:
+        unique_together = (('version', 'name'),)
 
     version = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
@@ -29,6 +31,9 @@ def delete_app(sender, instance, signal, *args, **kwargs):
 
     app_file = utils.ipa_path(instance.name, instance.version)
     print app_file
-    remove(app_file)
+    try:
+        remove(app_file)
+    except OSError:
+        pass
 
 pre_delete.connect(delete_app, sender=App)
