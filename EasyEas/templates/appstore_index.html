@@ -8,12 +8,22 @@
             a:link, a:visited {
                 text-decoration:none;
             }
-        </style>
+            .top {
+                border-top: 1px solid;
+                border-style: 1px solid;
+                border-color: black;
+            }
+            .bottom {
+                border-bottom: 1px solid;
+                border-style: 1px solid;
+                border-color: black;
+            }
+            </style>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     </head>
 
     <body>
-        <table class="main_table">
+        <table class="main_table" style="border-collapse: collapse">
             <tr>
                 <th>Name</th>
                 <th>Version</th>
@@ -22,13 +32,17 @@
             </tr>
         {% for app in apps %}
         <tr>
-            <td>{{ app.name }}</td>
-            <td><div align="center">{{ app.version }}</div></td>
-            <td>{{ app.creation_date|date:"n/j  g:i A" }}</td>
-            <td><a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">▼</a>
+            <td class="top" style="border-left: 1px solid black" >{{ app.name }}</td>
+            <td class="top"><div align="center">{{ app.version }}</div></td>
+            <td class="top">{{ app.creation_date|date:"n/j  g:i A" }}</td>
+            <td class="top" style="border-right: 1px solid black"><a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">▼</a>
         </tr>
-        <tr colspan="4">
-            <td>&nbsp</td>
+        <tr>
+            <td class="bottom" style="border-left: 1px solid black">&nbsp;</td>
+            <td colspan="4" class="bottom" style="border-right: 1px solid black">{{ app.note }}</td>
+        </tr>
+        <tr>
+            <td colspan="5">&nbsp;</td>
         </tr>
         {% endfor %}
     </table>
