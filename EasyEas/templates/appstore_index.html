@@ -1,12 +1,19 @@
 <html>
     <head>
-        <script type="text/css">
+        <style type="text/css">
             .main_table {
-                min-width: 320px;
+                max-width: 300px;
             }
-        </script>
+
+            a:link, a:visited {
+                text-decoration:none;
+            }
+        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    </head>
+
     <body>
-        <table width="320" class="main_table">
+        <table class="main_table">
             <tr>
                 <th>Name</th>
                 <th>Version</th>
@@ -16,7 +23,7 @@
         {% for app in apps %}
         <tr>
             <td>{{ app.name }}</td>
-            <td>{{ app.version }}</td>
+            <td><div align="center">{{ app.version }}</div></td>
             <td>{{ app.creation_date|date:"n/j  g:i A" }}</td>
             <td><a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">▼</a>
         </tr>
