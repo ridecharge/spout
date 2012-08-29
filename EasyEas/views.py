@@ -2,11 +2,11 @@ from django.shortcuts import get_object_or_404, render_to_response, render
 from django.http import HttpResponseRedirect, HttpResponse
 from django.views.generic.simple import direct_to_template
 from django.views.decorators.csrf import csrf_exempt
+from django.db import IntegrityError
 
 from Foundation import NSDictionary
 from zipfile import ZipFile
 import utils
-import os
 
 
 from EasyEas.models import *
@@ -25,10 +25,20 @@ def upload_build(request):
             filename_list = filename.split('.')
             filename_list = filename_list[0:-1]
             filename = ".".join(filename_list)
-            app = App(version=form.cleaned_data['version'], note=form.cleaned_data['note'], name=filename, product=form.cleaned_data['product'], creation_date=datetime.now())
-            app.save()
-            utils.save_uploaded_file(request.FILES['file'], app.version)
-            return HttpResponse("Success.")
+
+            path_to_ipa = utils.save_uploaded_file(request.FILES['file'])
+            parsed_plist = utils.plist_from_ipa(path_to_ipa, filename)
+
+            app_version = parsed_plist['CFBundleVersion']
+
+            app = App(version=app_version, note=form.cleaned_data['note'], name=filename, product=form.cleaned_data['product'], creation_date=datetime.now())
+            try:
+                app.save()
+                return HttpResponseRedirect("/apps/list")
+            except IntegrityError:
+                response_string = "The app '%s' already has a version '%s' in the system. Please upload a different version." % (filename, app_version)
+                return HttpResponse(status="409", content=response_string)
+
         else:
             return HttpResponse(form.errors)
     else:
@@ -46,18 +56,7 @@ def apps(request):
 
 def get_plist(request, app_name, app_version):
 
-    thezip = ZipFile(settings.STATIC_ROOT + app_name + "-" + app_version + ".ipa")
-    plist_dict = thezip.open("Payload/" + app_name + ".app/" + "Info.plist")
-
-    tempfile = open("/tmp/temp_plist.plist", "w")
-
-    for line in plist_dict:
-        tempfile.write(line)
-
-    tempfile.close()
-
-    parsed_dict = NSDictionary.dictionaryWithContentsOfFile_("/tmp/temp_plist.plist")
-    os.remove("/tmp/temp_plist.plist")
+    utils.plist_from_ipa(settings.STATIC_ROOT + app_name + "-" + app_version + ".ipa", app_name)
 
     url = "http://%s/apps/ipa/%s/%s" % (request.get_host(), app_name, app_version) 
     bundle_id = parsed_dict['CFBundleIdentifier']
