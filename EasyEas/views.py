@@ -5,6 +5,8 @@ from django.views.decorators.csrf import csrf_exempt
 
 from Foundation import NSDictionary
 from zipfile import ZipFile
+import utils
+import os
 
 
 from EasyEas.models import *
@@ -25,9 +27,8 @@ def upload_build(request):
             filename = ".".join(filename_list)
             app = App(version=form.cleaned_data['version'], note=form.cleaned_data['note'], name=filename, product=form.cleaned_data['product'], creation_date=datetime.now())
             app.save()
-            save_uploaded_file(request.FILES['file'], app.version, settings.STATIC_ROOT)
+            utils.save_uploaded_file(request.FILES['file'], app.version)
             return HttpResponse("Success.")
-            #return HttpResponseRedirect('/success')
         else:
             return HttpResponse(form.errors)
     else:
@@ -36,25 +37,29 @@ def upload_build(request):
 
 def apps(request):
 
-    apps = App.objects.all()
+    apps = App.objects.all().order_by('-creation_date')
 
-    return render_to_response("appstore_index.html", {'apps': apps})
+    host = request.get_host()
+
+
+    return render_to_response("appstore_index.html", {'apps': apps, 'host': host})
 
 def get_plist(request, app_name, app_version):
 
     thezip = ZipFile(settings.STATIC_ROOT + app_name + "-" + app_version + ".ipa")
     plist_dict = thezip.open("Payload/" + app_name + ".app/" + "Info.plist")
 
-    tempfile = open("temp_plist.plist", "w")
+    tempfile = open("/tmp/temp_plist.plist", "w")
 
     for line in plist_dict:
         tempfile.write(line)
 
     tempfile.close()
 
-    parsed_dict = NSDictionary.dictionaryWithContentsOfFile_("/Users/akfreas/Development/EasyEas/temp_plist.plist")
+    parsed_dict = NSDictionary.dictionaryWithContentsOfFile_("/tmp/temp_plist.plist")
+    os.remove("/tmp/temp_plist.plist")
 
-    url = "http://172.24.8.25:8000/apps/ipa/%s/%s" % (app_name, app_version) 
+    url = "http://%s/apps/ipa/%s/%s" % (request.get_host(), app_name, app_version) 
     bundle_id = parsed_dict['CFBundleIdentifier']
     bundle_version = parsed_dict['CFBundleVersion']
     app_title = parsed_dict['CFBundleName']
@@ -72,21 +77,4 @@ def get_ipa(request, app_name, app_version):
     app = open(settings.STATIC_ROOT + app_name + "-" + app_version + ".ipa", "r")
     
     return HttpResponse(app, mimetype="application/octet-stream")
-    
 
-
-
-def save_uploaded_file(the_file, version, directory):
-
-    split_filename = the_file.name.split('.')
-
-    split_filename.insert(-1, "-" + version)
-    split_filename.insert(-1, ".")
-
-
-    new_file_location = directory + "/" + "".join(split_filename)
-    new_file = open(new_file_location, "w") 
-#    new_file.writelines(the_file.chunks)
-    for c in the_file.chunks():
-        new_file.write(c)
-    new_file.close()
