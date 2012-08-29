@@ -1,0 +1,7 @@
+<html>
+    <body>
+        {% for app in apps %}
+        <a href="itms-services://?action=download-manifest&url=http://172.24.8.25:8000/apps/plist/{{ app.name }}/{{ app.version }}">{{ app.version }}</a><br>
+        {% endfor %}
+    </body>
+  </html>
