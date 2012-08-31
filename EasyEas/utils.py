@@ -31,12 +31,11 @@ def save_uploaded_file(the_file):
     ipa_plist = plist_from_ipa(temp_file_path, app_name)
     version = ipa_plist['CFBundleVersion']
 
-
     new_file_location = "%s/%s-%s.ipa" % (settings.STATIC_ROOT, app_name, version)
 
     shutil.move(temp_file_path, new_file_location)
 
-    return new_file_location
+    return version
 
 def plist_from_ipa(filename, app_name):
 

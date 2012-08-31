@@ -26,11 +26,7 @@ def upload_build(request):
             filename_list = filename_list[0:-1]
             filename = ".".join(filename_list)
 
-            path_to_ipa = utils.save_uploaded_file(request.FILES['file'])
-            parsed_plist = utils.plist_from_ipa(path_to_ipa, filename)
-
-            app_version = parsed_plist['CFBundleVersion']
-
+            app_version = utils.save_uploaded_file(request.FILES['file'])
             app = App(version=app_version, note=form.cleaned_data['note'], name=filename, product=form.cleaned_data['product'], creation_date=datetime.now())
             try:
                 app.save()
