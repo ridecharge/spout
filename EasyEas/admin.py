@@ -9,3 +9,8 @@ class AppAdmin(admin.ModelAdmin):
 
 admin.site.register(App, AppAdmin)
 
+class ProductAdmin(admin.ModelAdmin):
+
+    list_display = ('name',)
+    
+admin.site.register(Product, ProductAdmin)
