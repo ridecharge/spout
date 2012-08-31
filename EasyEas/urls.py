@@ -1,5 +1,6 @@
 from django.conf.urls import patterns, include, url
-from EasyEas import views
+import django
+import EasyEas
 
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
@@ -20,3 +21,10 @@ urlpatterns = patterns('EasyEas.views',
      url(r'^apps/plist/(?P<app_name>\w+)/(?P<app_version>.+)', 'get_plist'),
      url(r'^apps/ipa/(?P<app_name>\w+)/(?P<app_version>.+)', 'get_ipa'),
 )
+
+if EasyEas.settings.DEBUG:
+    urlpatterns += patterns('',
+                    (r'^static/media/(?P<path>.*)$', 'django.views.static.serve', 
+                        {'document_root':"/Users/akfreas/Development/easyeas_data/media",
+                            'show_indexes':True}),
+                    )

@@ -30,6 +30,7 @@
     <body>
         <table class="main_table" style="border-collapse: collapse">
             <tr>
+                <th>&nbsp;</th>
                 <th>Name</th>
                 <th>Version</th>
                 <th>Upload Date</th>
@@ -37,6 +38,7 @@
             </tr>
         {% for app in apps %}
         <tr>
+            <td><img src="/static/media/{{ app.name }}-{{ app.version }}.png"></td>
             <td class="top" style="border-left: 1px solid black" >{{ app.name }}</td>
             <td class="top"><div align="center">{{ app.version }}</div></td>
             <td class="top">{{ app.creation_date|date:"n/j  g:i A" }}</td>
