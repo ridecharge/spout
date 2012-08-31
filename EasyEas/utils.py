@@ -56,15 +56,7 @@ def save_uploaded_file(the_file):
     return version
 
 
-def plist_from_ipa(ipa_file_or_path):
-
-    needs_closed = False
-    if type(ipa_file_or_path) == str: 
-        ipa_file = Zipfile(ipa_file_or_path)
-        needs_closed = True
-    else: 
-        ipa_file = ipa_file_or_path
-
+def plist_from_ipa(ipa_file):
 
     ipa_contents = ipa_file.filelist
     app_name = app_name_from_filelist(ipa_contents)
@@ -74,9 +66,6 @@ def plist_from_ipa(ipa_file_or_path):
     pool = NSAutoreleasePool.alloc().init()
     parsed_dict = NSDictionary.dictionaryWithContentsOfFile_(plist_dict_path)
     copied_dict = dict(parsed_dict)
-
-    if needs_closed == True:
-        ipa_file.close()
 
     return copied_dict
 

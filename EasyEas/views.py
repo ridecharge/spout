@@ -51,8 +51,8 @@ def apps(request):
     return render_to_response("appstore_index.html", {'apps': apps, 'host': host})
 
 def get_plist(request, app_name, app_version):
-
-    parsed_dict = utils.plist_from_ipa(settings.STATIC_ROOT + app_name + "-" + app_version + ".ipa")
+    theZip = ZipFile(settings.STATIC_ROOT + app_name + "-" + app_version + ".ipa")
+    parsed_dict = utils.plist_from_ipa(theZip)
 
     url = "http://%s/apps/ipa/%s/%s" % (request.get_host(), app_name, app_version) 
     bundle_id = parsed_dict['CFBundleIdentifier']
@@ -62,6 +62,7 @@ def get_plist(request, app_name, app_version):
     template = "generic_enterprise_manifest.plist"
     app_dict = NSDictionary.dictionaryWithContentsOfFile_(template)
 
+    theZip.close()
     return render_to_response(template, {"app_url": url,
                                                 "bundle_identifier": bundle_id,
                                                    "bundle_version": bundle_version,
