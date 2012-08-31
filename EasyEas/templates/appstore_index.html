@@ -38,8 +38,8 @@
             </tr>
         {% for app in apps %}
         <tr>
-            <td><img src="/static/media/{{ app.name }}-{{ app.version }}.png"></td>
-            <td class="top" style="border-left: 1px solid black" >{{ app.name }}</td>
+            <td class="top" style="border-left: 1px solid black"><img width='77' height='77' src="/static/media/{{ app.name }}-{{ app.version }}.png"></td>
+            <td class="top">{{ app.name }}</td>
             <td class="top"><div align="center">{{ app.version }}</div></td>
             <td class="top">{{ app.creation_date|date:"n/j  g:i A" }}</td>
             <td class="top" style="border-right: 1px solid black"><a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">▼</a>
