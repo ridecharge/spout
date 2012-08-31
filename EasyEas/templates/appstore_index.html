@@ -29,24 +29,16 @@
 
     <body>
         <table class="main_table" style="border-collapse: collapse">
-            <tr>
-                <th>&nbsp;</th>
-                <th>Name</th>
-                <th>Version</th>
-                <th>Upload Date</th>
-                <td>&nbsp;</td>
-            </tr>
         {% for app in apps %}
         <tr>
-            <td class="top" style="border-left: 1px solid black"><img width='77' height='77' src="/static/media/{{ app.name }}-{{ app.version }}.png"></td>
-            <td class="top">{{ app.name }}</td>
-            <td class="top"><div align="center">{{ app.version }}</div></td>
+            <td class="top" style="border-left: 1px solid black"><a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">
+                    <img width='55' height='55' src="/static/media/{{ app.name }}-{{ app.version }}.png"></a></td>
+            <td class="top">{{ app.name }} - {{ app.version }}</td>
             <td class="top">{{ app.creation_date|date:"n/j  g:i A" }}</td>
-            <td class="top" style="border-right: 1px solid black"><a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">▼</a>
+            <td class="top" style="border-right: 1px solid black">▼</a>
         </tr>
         <tr>
-            <td class="bottom" style="border-left: 1px solid black">&nbsp;</td>
-            <td colspan="4" class="bottom" style="border-right: 1px solid black">{{ app.note }}</td>
+            <td colspan="5" class="bottom" style="border-left: 1px solid black; border-right: 1px solid black">{{ app.note }}</td>
         </tr>
         <tr>
             <td colspan="5">&nbsp;</td>
