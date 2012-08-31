@@ -33,8 +33,8 @@
         <tr>
             <td class="top" style="border-left: 1px solid black"><a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">
                     <img width='55' height='55' src="/static/media/{{ app.name }}-{{ app.version }}.png"></a></td>
-            <td class="top">{{ app.name }} - {{ app.version }}</td>
-            <td class="top">{{ app.creation_date|date:"n/j  g:i A" }}</td>
+            <td class="top">{{ app.name }}<br>{{ app.version }}</td>
+            <td class="top" style="border-right: 1px solid black">{{ app.creation_date|date:"n/j  g:i A" }}</td>
         </tr>
         <tr>
             <td colspan="5" class="bottom" style="border-left: 1px solid black; border-right: 1px solid black">{{ app.note }}</td>
