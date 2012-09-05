@@ -3,10 +3,11 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.views.generic.simple import direct_to_template
 from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
-
-from Foundation import NSDictionary
+from django.template import RequestContext
 from zipfile import ZipFile
 import utils
+
+from Foundation import NSDictionary
 
 
 from EasyEas.models import *
@@ -43,12 +44,36 @@ def upload_build(request):
 
 def apps(request):
 
-    apps = App.objects.all().order_by('-creation_date')
+    if request.user.is_authenticated():
+        apps = App.objects.all().order_by('-creation_date')
+        auth = "logout"
+    else:
+        apps = App.objects.filter(approved=True)
+        auth = "login"
 
     host = request.get_host()
 
 
-    return render_to_response("appstore_index.html", {'apps': apps, 'host': host})
+    return render_to_response("appstore_index.html", {'apps': apps, 'host': host, 'auth': auth}, context_instance=RequestContext(request))
+
+def approve_app(request, app_id):
+
+    if request.user.is_authenticated():
+
+        app = App.objects.get(id=app_id)
+        app.approved = True
+        app.save()
+
+    return HttpResponseRedirect("/apps/list")
+
+def unapprove_app(request, app_id):
+
+    if request.user.is_authenticated():
+        app = App.objects.get(id=app_id)
+        app.approved = False
+        app.save()
+
+    return HttpResponseRedirect("/apps/list")
 
 def get_plist(request, app_name, app_version):
     theZip = ZipFile(settings.STATIC_ROOT + app_name + "-" + app_version + ".ipa")

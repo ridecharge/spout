@@ -20,7 +20,14 @@ urlpatterns = patterns('EasyEas.views',
      url(r'^apps/upload', 'upload_build'), 
      url(r'^apps/plist/(?P<app_name>\w+)/(?P<app_version>.+)', 'get_plist'),
      url(r'^apps/ipa/(?P<app_name>\w+)/(?P<app_version>.+)', 'get_ipa'),
+     url(r'^apps/approve/(?P<app_id>\w+)', 'approve_app'),
+     url(r'^apps/unapprove/(?P<app_id>\w+)', 'unapprove_app'),
 )
+
+urlpatterns += patterns('', 
+        url(r'^accounts/login/$', 'django.contrib.auth.views.login'),
+        url(r'^accounts/logout/$', 'django.contrib.auth.views.logout'),
+        )
 
 if EasyEas.settings.DEBUG:
     urlpatterns += patterns('',

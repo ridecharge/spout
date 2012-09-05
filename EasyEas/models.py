@@ -18,6 +18,7 @@ class App(models.Model):
     product = models.ForeignKey('Product')
     note = models.CharField(max_length=255)
     creation_date = models.DateTimeField()
+    approved = models.BooleanField(default=True)
 
 class Product(models.Model):
 

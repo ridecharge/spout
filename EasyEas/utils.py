@@ -30,6 +30,7 @@ def save_uploaded_file(the_file):
 
     ipa_plist = plist_from_ipa(ipa_file)
     version = ipa_plist['CFBundleVersion']
+    app_name = app_name_from_filelist(ipa_file.filelist)
 
     if 'CFBundleIconFiles' in ipa_plist.keys():
         icons = ipa_plist['CFBundleIconFiles']
@@ -44,7 +45,6 @@ def save_uploaded_file(the_file):
             icon_search_pattern = re.compile(".*%s" % icon)
             icon_path = [f.filename for f in ipa_file.filelist if icon_search_pattern.match(f.filename)][0] 
             extracted_icon_path = ipa_file.extract(icon_path, path=temp_dir)
-            app_name = app_name_from_filelist(ipa_file.filelist)
             print extracted_icon_path
             shutil.move(extracted_icon_path, "%s/%s-%s.png" % (settings.STATIC_ROOT, app_name, version))
            
