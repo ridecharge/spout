@@ -48,7 +48,7 @@ def apps(request):
         apps = App.objects.all().order_by('-creation_date')
         auth = "logout"
     else:
-        apps = App.objects.filter(approved=True)
+        apps = App.objects.filter(approved=True).order_by('-creation_date')
         auth = "login"
 
     host = request.get_host()
