@@ -6,7 +6,12 @@ from os import remove
 
 import utils
 
+
 class App(models.Model):
+
+    APP_TYPE_CHOICES = (("ANDROID", "Android"),
+                    ("IOS", "iOS"),
+                    ("BLACKBERRY", "BlackBerry"))
 
     def __unicode__(self):
         return "%s - %s" % (self.name, self.version)
@@ -19,6 +24,7 @@ class App(models.Model):
     note = models.CharField(max_length=255)
     creation_date = models.DateTimeField()
     approved = models.BooleanField(default=True)
+    device_type = models.CharField(choices=APP_TYPE_CHOICES, default="IOS", max_length=255)
 
 class Product(models.Model):
 
