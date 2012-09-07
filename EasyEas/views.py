@@ -33,7 +33,7 @@ def upload_build(request):
                 app.save()
                 return HttpResponseRedirect("/apps/list")
             except IntegrityError:
-                response_string = "The app '%s' already has a version '%s' in the system. Please upload a different version." % (filename, app_version)
+                response_string = "The app '%s' already has a version '%s' in the system. Please upload a different version." % (filename, app_info['version'])
                 return HttpResponse(status="409", content=response_string)
 
         else:
@@ -102,7 +102,7 @@ def get_ipa(request, app_name, app_version):
 def get_dsym(request, app_name, app_version):
 
 
-    app_file = open("%s%s-%s.app.dSYM" % (settings.STATIC_ROOT, app_name, app_version), "r")
+    app_file = open("%s%s-%s.app.dSYM.zip" % (settings.STATIC_ROOT, app_name, app_version), "r")
 
     return HttpResponse(app_file, mimetype="application/octet-stream")
 

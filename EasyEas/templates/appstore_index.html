@@ -36,7 +36,7 @@
                     <img width='55' height='55' src="/static/media/{{ app.name }}-{{ app.version }}.png"></a></td>
             <td class="top">{{ app.name }}<br>{{ app.version }}</td>
             <td class="top" >{{ app.creation_date|date:"n/j  g:i A" }}</td>
-            <td class="top"><a href="http://{{ host }}/apps/dsym/{{ app.name }}/{{ app.version }}.dSYM">dSYM</a></td>
+            <td class="top"><a href="http://{{ host }}/apps/dsym/{{ app.name }}/{{ app.version }}.dSYM.zip">dSYM</a></td>
                 <td class="top" style="border-right: 1px solid black">
             {% if user.is_authenticated %}
                 {% if app.approved %}<a href="unapprove/{{ app.id }}">unapprove</a>{% else %}<a href="approve/{{ app.id }}">approve</a>{% endif %}

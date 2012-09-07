@@ -56,7 +56,7 @@ def save_uploaded_ipa_and_dsym(the_ipa, the_dsym):
             shutil.move(extracted_icon_path, "%s/%s-%s.png" % (settings.STATIC_ROOT, app_name, version))
            
     new_ipa_location = "%s/%s-%s.ipa" % (settings.STATIC_ROOT, app_name, version)
-    new_dsym_location = "%s/%s-%s.app.dSYM" % (settings.STATIC_ROOT, app_name, version)
+    new_dsym_location = "%s/%s-%s.app.dSYM.zip" % (settings.STATIC_ROOT, app_name, version)
 
     shutil.move(temp_ipa_path, new_ipa_location)
     shutil.move(temp_dsym_path, new_dsym_location)
