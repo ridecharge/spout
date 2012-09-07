@@ -99,3 +99,10 @@ def get_ipa(request, app_name, app_version):
     
     return HttpResponse(app, mimetype="application/octet-stream")
 
+def get_dsym(request, app_name, app_version):
+
+
+    app_file = open("%s%s-%s.app.dSYM" % (settings.STATIC_ROOT, app_name, app_version), "r")
+
+    return HttpResponse(app_file, mimetype="application/octet-stream")
+
