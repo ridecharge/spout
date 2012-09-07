@@ -22,13 +22,13 @@ def upload_build(request):
         form = forms.UploadBuildForm(request.POST, request.FILES)    
         if form.is_valid():
 
-            filename = request.FILES['file'].name
+            filename = request.FILES['ipa_file'].name
             filename_list = filename.split('.')
             filename_list = filename_list[0:-1]
             filename = ".".join(filename_list)
 
-            app_version = utils.save_uploaded_file(request.FILES['file'])
-            app = App(version=app_version, note=form.cleaned_data['note'], name=filename, product=form.cleaned_data['product'], creation_date=datetime.now())
+            app_info = utils.save_uploaded_ipa_and_dsym(request.FILES['ipa_file'], request.FILES['dsym_file'])
+            app = App(version=app_info['version'], note=form.cleaned_data['note'], name=app_info['app_name'], product=form.cleaned_data['product'], creation_date=datetime.now())
             try:
                 app.save()
                 return HttpResponseRedirect("/apps/list")
