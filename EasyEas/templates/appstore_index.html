@@ -2,11 +2,13 @@
     <head>
         <title>RideCharge Enterprise App Store</title>
         <style type="text/css">
+            .main_table {
+                max-width: 300px;
+            }
 
             a:link, a:visited {
                 text-decoration:none;
             }
-
             .top {
                 border-top: 1px solid;
                 border-style: 1px solid;
@@ -21,60 +23,32 @@
             td {
                 padding: 6px;
             }
-
-            #app {
-                border: 1px solid black;
-                margin: 10px;
-                padding: 10px;
-                max-width: 500px;
-                height: 100%;
-                min-height: 65px;
-                position: relative;
-            }
-
-            p.note {
-                
-                left: 85px;
-                top: 30px;
-                position: absolute;
-
-            }
-
-            img.icon {
-                display: inline;
-                float: left;
-            }
-
-            p.app-name {
-                display: inline;
-                position: relative;
-                margin-left: 30px;
-            }
-
-            p.approval {
-
-                float: right;
-            }
-
             </style>
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     </head>
 
     <body>
         <a href="/accounts/{{ auth }}/?next=/apps/list">{{ auth|capfirst}}</a><br>
-
-        <div id="apps">
+        <table class="main_table" style="border-collapse: collapse">
         {% for app in apps %}
-        <div id="app">
-                    <a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">
-                    <img class="icon" width='55' height='55' src="/static/media/{{ app.name }}-{{ app.version }}.png"></a>
-            <p class="app-name">{{ app.name }}  {{ app.version }} 
-                {% if user.is_authenticated %}
-            <p class="approval">{% if app.approved %}<a href="unapprove/{{ app.id }}">unapprove</a>{% else %}<a href="approve/{{ app.id }}">approve</a>{% endif %}
-                {% endif %}
-            <p class="note">{{ app.note }}</p>
-        </div>
+        <tr>
+            <td class="top" style="border-left: 1px solid black"><a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">
+                    <img width='55' height='55' src="/static/media/{{ app.name }}-{{ app.version }}.png"></a></td>
+            <td class="top">{{ app.name }}<br>{{ app.version }}</td>
+            <td class="top" >{{ app.creation_date|date:"n/j  g:i A" }}</td>
+            <td class="top"><a href="http://{{ host }}/apps/dsym/{{ app.name }}/{{ app.version }}.dSYM.zip">dSYM</a></td>
+                <td class="top" style="border-right: 1px solid black">
+            {% if user.is_authenticated %}
+                {% if app.approved %}<a href="unapprove/{{ app.id }}">unapprove</a>{% else %}<a href="approve/{{ app.id }}">approve</a>{% endif %}
+            {% endif %}</td>
+        </tr>
+        <tr>
+            <td colspan="5" class="bottom" style="border-left: 1px solid black; border-right: 1px solid black">{{ app.note }}</td>
+        </tr>
+        <tr>
+            <td colspan="5">&nbsp;</td>
+        </tr>
         {% endfor %}
-    </div>
+    </table>
     </body>
   </html>

@@ -4,7 +4,7 @@ from EasyEas.models import *
 
 class AppAdmin(admin.ModelAdmin):
 
-    list_display = ('product', 'name', 'version', 'approved')
+    list_display = ('product', 'name', 'version', 'approved', 'note',)
     list_filter = ('product', 'name', 'approved')
 
 admin.site.register(App, AppAdmin)

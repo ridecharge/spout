@@ -5,5 +5,6 @@ class UploadBuildForm(forms.Form):
 
 
     note = forms.CharField(max_length=255)
-    file = forms.FileField()
+    ipa_file = forms.FileField()
+    dsym_file = forms.FileField()
     product = forms.ModelChoiceField(models.Product.objects.all())

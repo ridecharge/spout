@@ -22,18 +22,18 @@ def upload_build(request):
         form = forms.UploadBuildForm(request.POST, request.FILES)    
         if form.is_valid():
 
-            filename = request.FILES['file'].name
+            filename = request.FILES['ipa_file'].name
             filename_list = filename.split('.')
             filename_list = filename_list[0:-1]
             filename = ".".join(filename_list)
 
-            app_version = utils.save_uploaded_file(request.FILES['file'])
-            app = App(version=app_version, note=form.cleaned_data['note'], name=filename, product=form.cleaned_data['product'], creation_date=datetime.now())
+            app_info = utils.save_uploaded_ipa_and_dsym(request.FILES['ipa_file'], request.FILES['dsym_file'])
+            app = App(version=app_info['version'], note=form.cleaned_data['note'], name=app_info['app_name'], product=form.cleaned_data['product'], creation_date=datetime.now())
             try:
                 app.save()
                 return HttpResponseRedirect("/apps/list")
             except IntegrityError:
-                response_string = "The app '%s' already has a version '%s' in the system. Please upload a different version." % (filename, app_version)
+                response_string = "The app '%s' already has a version '%s' in the system. Please upload a different version." % (filename, app_info['version'])
                 return HttpResponse(status="409", content=response_string)
 
         else:
@@ -98,4 +98,11 @@ def get_ipa(request, app_name, app_version):
     app = open(settings.STATIC_ROOT + app_name + "-" + app_version + ".ipa", "r")
     
     return HttpResponse(app, mimetype="application/octet-stream")
+
+def get_dsym(request, app_name, app_version):
+
+
+    app_file = open("%s%s-%s.app.dSYM.zip" % (settings.STATIC_ROOT, app_name, app_version), "r")
+
+    return HttpResponse(app_file, mimetype="application/octet-stream")
 

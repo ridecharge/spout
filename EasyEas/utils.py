@@ -13,23 +13,30 @@ def ipa_path(app_name, version):
     path = "%s%s-%s.ipa" % (settings.STATIC_ROOT, app_name, version)
     return path
 
-
-def save_uploaded_file(the_file):
+def save_uploaded_file_to_temp(file_from_form):
 
     temp_file, temp_file_path = mkstemp()
     temp_file = open(temp_file_path, 'w')
 
-    for chunk in the_file.chunks():
+    for chunk in file_from_form.chunks():
         temp_file.write(chunk)
     temp_file.close()
 
-    ipa_file = ZipFile(temp_file_path)
+    return temp_file_path
+
+def save_uploaded_ipa_and_dsym(the_ipa, the_dsym):
+
+    temp_ipa_path = save_uploaded_file_to_temp(the_ipa)
+    temp_dsym_path = save_uploaded_file_to_temp(the_dsym)
+    
+    ipa_file = ZipFile(temp_ipa_path)
     ipa_contents = ipa_file.filelist
 
     temp_dir = mkdtemp()
 
     ipa_plist = plist_from_ipa(ipa_file)
     version = ipa_plist['CFBundleVersion']
+    app_name = ipa_plist['CFBundleDisplayName']
     app_name = app_name_from_filelist(ipa_file.filelist)
 
     if 'CFBundleIconFiles' in ipa_plist.keys():
@@ -48,12 +55,16 @@ def save_uploaded_file(the_file):
             print extracted_icon_path
             shutil.move(extracted_icon_path, "%s/%s-%s.png" % (settings.STATIC_ROOT, app_name, version))
            
-    new_file_location = "%s/%s-%s.ipa" % (settings.STATIC_ROOT, app_name, version)
+    new_ipa_location = "%s/%s-%s.ipa" % (settings.STATIC_ROOT, app_name, version)
+    new_dsym_location = "%s/%s-%s.app.dSYM.zip" % (settings.STATIC_ROOT, app_name, version)
 
-    shutil.move(temp_file_path, new_file_location)
+    shutil.move(temp_ipa_path, new_ipa_location)
+    shutil.move(temp_dsym_path, new_dsym_location)
 
     ipa_file.close()
-    return version
+
+    app_info = dict({'version': version, 'app_name': app_name })
+    return app_info
 
 
 def plist_from_ipa(ipa_file):

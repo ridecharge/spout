@@ -20,6 +20,7 @@ urlpatterns = patterns('EasyEas.views',
      url(r'^apps/upload', 'upload_build'), 
      url(r'^apps/plist/(?P<app_name>\w+)/(?P<app_version>.+)', 'get_plist'),
      url(r'^apps/ipa/(?P<app_name>\w+)/(?P<app_version>.+)', 'get_ipa'),
+     url(r'^apps/dsym/(?P<app_name>\w+)/(?P<app_version>.+).dSYM', 'get_dsym'),
      url(r'^apps/approve/(?P<app_id>\w+)', 'approve_app'),
      url(r'^apps/unapprove/(?P<app_id>\w+)', 'unapprove_app'),
 )
