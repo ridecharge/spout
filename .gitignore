@@ -1,4 +1,4 @@
 *.pyc
 local_settings.py
 apache
-media
+client_data
