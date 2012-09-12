@@ -25,6 +25,12 @@ class App(models.Model):
     creation_date = models.DateTimeField()
     approved = models.BooleanField(default=True)
     device_type = models.CharField(choices=APP_TYPE_CHOICES, default="IOS", max_length=255)
+    tags = models.ManyToManyField('Tag')
+
+class Tag(models.Model):
+
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
 
 class Product(models.Model):
 
