@@ -89,9 +89,9 @@ def get_plist(request, app_name, app_version):
 
     theZip.close()
     return render_to_response(template, {"app_url": url,
-                                                "bundle_identifier": bundle_id,
-                                                   "bundle_version": bundle_version,
-                                                        "app_title": app_title})
+                                "bundle_identifier": bundle_id,
+                                   "bundle_version": bundle_version,
+                                        "app_title": app_title})
 
 def get_ipa(request, app_name, app_version):
 
@@ -100,7 +100,6 @@ def get_ipa(request, app_name, app_version):
     return HttpResponse(app, mimetype="application/octet-stream")
 
 def get_dsym(request, app_name, app_version):
-
 
     app_file = open("%s%s-%s.app.dSYM.zip" % (settings.STATIC_ROOT, app_name, app_version), "r")
 
