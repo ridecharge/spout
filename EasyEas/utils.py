@@ -4,8 +4,7 @@ import shutil
 from tempfile import mkstemp, mkdtemp
 import os
 import re
-from Foundation import NSDictionary, NSAutoreleasePool
-
+import biplist
 
 
 def ipa_path(app_name, version):
@@ -74,8 +73,7 @@ def plist_from_ipa(ipa_file):
     temp_dir = mkdtemp()
     plist_dict_path = ipa_file.extract("Payload/" + app_name + ".app/" + "Info.plist", path=temp_dir)
 
-    pool = NSAutoreleasePool.alloc().init()
-    parsed_dict = NSDictionary.dictionaryWithContentsOfFile_(plist_dict_path)
+    parsed_dict = biplist.readPlist(plist_dict_path)
     copied_dict = dict(parsed_dict)
 
     return copied_dict

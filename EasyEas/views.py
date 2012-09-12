@@ -7,9 +7,6 @@ from django.template import RequestContext
 from zipfile import ZipFile
 import utils
 
-from Foundation import NSDictionary
-
-
 from EasyEas.models import *
 from EasyEas import forms
 
@@ -85,8 +82,6 @@ def get_plist(request, app_name, app_version):
     app_title = parsed_dict['CFBundleName']
 
     template = "generic_enterprise_manifest.plist"
-    app_dict = NSDictionary.dictionaryWithContentsOfFile_(template)
-
     theZip.close()
     return render_to_response(template, {"app_url": url,
                                 "bundle_identifier": bundle_id,
