@@ -1,54 +1,32 @@
 <html>
     <head>
         <title>RideCharge Enterprise App Store</title>
-        <style type="text/css">
-            .main_table {
-                max-width: 300px;
-            }
-
-            a:link, a:visited {
-                text-decoration:none;
-            }
-            .top {
-                border-top: 1px solid;
-                border-style: 1px solid;
-                border-color: black;
-            }
-            .bottom {
-                border-bottom: 1px solid;
-                border-style: 1px solid;
-                border-color: black;
-            }
-
-            td {
-                padding: 6px;
-            }
-            </style>
+        <link href="{{ STATIC_URL }}css/bootstrap.min.css" rel="stylesheet">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     </head>
 
     <body>
         <a href="/accounts/{{ auth }}/?next=/apps/list">{{ auth|capfirst}}</a><br>
-        <table class="main_table" style="border-collapse: collapse">
+        <div class="container">
         {% for app in apps %}
-        <tr>
-            <td class="top" style="border-left: 1px solid black"><a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">
-                    <img width='55' height='55' src="/static/media/{{ app.name }}-{{ app.version }}.png"></a></td>
-            <td class="top">{{ app.name }}<br>{{ app.version }}</td>
-            <td class="top" >{{ app.creation_date|date:"n/j  g:i A" }}</td>
-            <td class="top"><a href="http://{{ host }}/apps/dsym/{{ app.name }}/{{ app.version }}.dSYM.zip">dSYM</a></td>
-                <td class="top" style="border-right: 1px solid black">
+        <div class="row">
+            <div class="span1"><a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">
+                    <img width='55' height='55' src="{{ MEDIA_URL }}{{ app.name }}-{{ app.version }}.png"></a><br>
+                <div align="center">
+                    <a href="http://{{ host }}/apps/dsym/{{ app.name }}/{{ app.version }}.dSYM.zip">dSYM</a>
+                </div>
+
+            </div>
+            <div class="offset1"></div>
+            {{ app.name }}<br>
+            {{ app.version }}<br>  
+            {{ app.creation_date|date:"n/j  g:i A" }}<br>
             {% if user.is_authenticated %}
                 {% if app.approved %}<a href="unapprove/{{ app.id }}">unapprove</a>{% else %}<a href="approve/{{ app.id }}">approve</a>{% endif %}
-            {% endif %}</td>
-        </tr>
-        <tr>
-            <td colspan="5" class="bottom" style="border-left: 1px solid black; border-right: 1px solid black">{{ app.note }}</td>
-        </tr>
-        <tr>
-            <td colspan="5">&nbsp;</td>
-        </tr>
+                {% endif %}{{ app.note }}
+            </div>
         {% endfor %}
     </table>
+</div>
     </body>
   </html>
