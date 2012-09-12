@@ -1,32 +1,70 @@
 <html>
     <head>
         <title>RideCharge Enterprise App Store</title>
-        <link href="{{ STATIC_URL }}css/bootstrap.min.css" rel="stylesheet">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+        <link href="{{ STATIC_URL }}css/bootstrap-responsive.min.css" rel="stylesheet">
+        <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">-->
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style type="text/css">
+            .app {
+                padding: 10px;
+                border: solid 1px black;
+                margin: 10px;
+            }
+            
+        </style>
     </head>
 
     <body>
-        <a href="/accounts/{{ auth }}/?next=/apps/list">{{ auth|capfirst}}</a><br>
-        <div class="container">
-        {% for app in apps %}
-        <div class="row">
-            <div class="span1"><a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">
-                    <img width='55' height='55' src="{{ MEDIA_URL }}{{ app.name }}-{{ app.version }}.png"></a><br>
-                <div align="center">
-                    <a href="http://{{ host }}/apps/dsym/{{ app.name }}/{{ app.version }}.dSYM.zip">dSYM</a>
-                </div>
+            <div class="offset1">
+                    <div class="span8 half">
+                            {% for app in apps %}
+                        <div class="row-fluid" style="border: 1px solid black; padding: 3px; margin: 4px">
+                            <div class="span12">
+                                <div class="row-fluid">
+                                    <div class="span12">
+                                        <div class="row-fluid">
+                                            <div class="span2">
+                                                <a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">
+                                                <img width='55' height='55' src="{{ MEDIA_URL }}{{ app.name }}-{{ app.version }}.png"></a><br>
+                                                
+                                            </div>
+                                            <div class="span10">
+                                                <div class="row-fluid">
+                                                    <div class="span6">
+                                                        {{ app.name }}
+                                                    </div>
+                                                    <div class="span3" align="center">
+                                                        {{ app.version }} 
+                                                    </div>
+                                                    <div class="span3" align="center">
+                                                        <div class="row-fluid">
+                                                            <div class="span12">
+                                                        {{ app.creation_date|date:"n/j  g:i A" }}
+                                                            </div>
+                                                        </div>
+                                                        <div class="row-fluid">
+                                                            <div class="span12">
+                                                                <a href="http://{{ host }}/apps/dsym/{{ app.name }}/{{ app.version }}.dSYM.zip">dSYM</a>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid">
+                                                    <div class="span12">
+                                                        {{ app.note }}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+            </div>
 
-            </div>
-            <div class="offset1"></div>
-            {{ app.name }}<br>
-            {{ app.version }}<br>  
-            {{ app.creation_date|date:"n/j  g:i A" }}<br>
-            {% if user.is_authenticated %}
-                {% if app.approved %}<a href="unapprove/{{ app.id }}">unapprove</a>{% else %}<a href="approve/{{ app.id }}">approve</a>{% endif %}
-                {% endif %}{{ app.note }}
-            </div>
-        {% endfor %}
-    </table>
-</div>
     </body>
-  </html>
+  </html>{% if user.is_authenticated %}
+                                    {% if app.approved %}<a href="unapprove/{{ app.id }}">unapprove</a>{% else %}<a href="approve/{{ app.id }}">approve</a>{% endif %}
+                                    {% endif %}
