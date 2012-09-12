@@ -1,0 +1,32 @@
+<html>
+    <head>
+        <title>RideCharge Enterprise App Store</title>
+        <link href="{{ STATIC_URL }}css/bootstrap.min.css" rel="stylesheet">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    </head>
+
+    <body>
+        <a href="/accounts/{{ auth }}/?next=/apps/list">{{ auth|capfirst}}</a><br>
+        <div class="container">
+        {% for app in apps %}
+        <div class="row">
+            <div class="span1"><a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">
+                    <img width='55' height='55' src="{{ MEDIA_URL }}{{ app.name }}-{{ app.version }}.png"></a><br>
+                <div align="center">
+                    <a href="http://{{ host }}/apps/dsym/{{ app.name }}/{{ app.version }}.dSYM.zip">dSYM</a>
+                </div>
+
+            </div>
+            <div class="offset1"></div>
+            {{ app.name }}<br>
+            {{ app.version }}<br>  
+            {{ app.creation_date|date:"n/j  g:i A" }}<br>
+            {% if user.is_authenticated %}
+                {% if app.approved %}<a href="unapprove/{{ app.id }}">unapprove</a>{% else %}<a href="approve/{{ app.id }}">approve</a>{% endif %}
+                {% endif %}{{ app.note }}
+            </div>
+        {% endfor %}
+    </table>
+</div>
+    </body>
+  </html>
