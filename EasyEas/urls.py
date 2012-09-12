@@ -32,7 +32,10 @@ urlpatterns += patterns('',
 
 if EasyEas.settings.DEBUG:
     urlpatterns += patterns('',
-                    (r'^static/media/(?P<path>.*)$', 'django.views.static.serve', 
-                        {'document_root':"/Users/akfreas/Development/easyeas_data/media",
+                    (r'^media/(?P<path>.*)$', 'django.views.static.serve', 
+                        {'document_root': EasyEas.settings.MEDIA_ROOT,
+                            'show_indexes':True}),
+                    (r'static/(?P<path>.*)$', 'django.views.static.serve',
+                        {'document_root': EasyEas.settings.STATIC_ROOT,
                             'show_indexes':True}),
                     )
