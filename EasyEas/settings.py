@@ -1,3 +1,5 @@
+import os
+PROJECT_PATH = os.path.realpath(os.path.dirname(__file__))
 # Django settings for EasyEas project.
 
 DEBUG = False
@@ -91,6 +93,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    PROJECT_PATH + "/static/templates"
 )
 
 INSTALLED_APPS = (
