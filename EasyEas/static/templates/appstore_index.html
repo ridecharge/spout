@@ -16,7 +16,7 @@
 
     <body>
             <div class="offset1">
-                    <div class="span8 half">
+                    <div class="span6">
                             {% for app in apps %}
                         <div class="row-fluid" style="border: 1px solid black; padding: 3px; margin: 4px">
                             <div class="span12">
@@ -37,16 +37,10 @@
                                                         {{ app.version }} 
                                                     </div>
                                                     <div class="span3" align="center">
-                                                        <div class="row-fluid">
                                                             <div class="span12">
-                                                        {{ app.creation_date|date:"n/j  g:i A" }}
-                                                            </div>
-                                                        </div>
-                                                        <div class="row-fluid">
-                                                            <div class="span12">
+                                                                {{ app.creation_date|date:"n/j  g:i A" }}<br>
                                                                 <a href="http://{{ host }}/apps/dsym/{{ app.name }}/{{ app.version }}.dSYM.zip">dSYM</a>
                                                             </div>
-                                                        </div>
                                                     </div>
                                                 </div>
                                                 <div class="row-fluid">
