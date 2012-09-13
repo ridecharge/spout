@@ -1,0 +1,97 @@
+<html>
+    <head>
+        <title>{% block title %}Enterprise App Store{% endblock %}</title>
+        <link href="{{ STATIC_URL }}css/bootstrap-responsive.css" rel="stylesheet">
+        <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.8.1.min.js">
+        </script>
+
+        <script type="text/javascript">
+            $(document).ready(function() {
+                
+                    $('input.external').each(function(index) {
+                        var me = this;
+                        console.log(this);
+                        $.getJSON("/app/" + this.id + "/tags", '', function(data) {
+
+                            $.each(data, function(key, value) {
+                                theTags = data['tags'];
+                                console.log(data);
+                                if (data['tags'].length > 0 && $.inArray("external", theTags) > -1) {
+                                    $(me).attr('checked', true);
+                                }
+                            });
+                        });
+                    });
+            $(':checkbox').click(function() {
+                    $.getJSON("/app/" + this.id + "/tag/external");
+                    console.log("Clicked.");
+                    });
+            });
+        </script>
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style type="text/css">
+            .app {
+                padding: 10px;
+                border: solid 1px black;
+                margin: 10px;
+            }
+        @media (max-width:500px) {
+               
+                .details {
+                    display: inline;
+                }
+                .hidemobile {
+                    display: none;
+                    visibility: hidden;
+                }
+            }
+                
+        </style>
+    </head>
+
+    <body>
+        <div class="container-fluid">
+            <div class="offset4">
+                    <div class="span8">
+                            {% for app in apps %}
+                        <div class="row-fluid" style="border: 1px solid black; padding: 10px; margin: 4px">
+                            <div class="span12">
+                                <div class="row-fluid">
+                                    <div class="span12">
+                                        <div class="row-fluid">
+                                            <div class="span2 icon">
+                                                <a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">
+                                                <img width='55' height='55' src="{{ MEDIA_URL }}{{ app.name }}-{{ app.version }}.png"></a><br>
+                                            </div>
+                                            <div class="span10 details">
+                                                <div class="row-fluid">
+                                                    <div class="span6">
+                                                        {{ app.name }}
+                                                    </div>
+                                                    <div class="span4" align="center">
+                                                        {{ app.version }} 
+                                                    </div>
+                                                    <div class="span2" align="center">
+                                                        <div class="span12">
+                                                            {{ app.creation_date|date:"n/j  g:i A" }}<br>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid comment">
+
+                                                    {% block textual_app_info %}
+                                                    {% endblock %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+            </div>
+
+    </body>
+  </html>
