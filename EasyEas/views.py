@@ -4,13 +4,14 @@ from django.views.generic.simple import direct_to_template
 from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
 from django.template import RequestContext
+from datetime import datetime
 from zipfile import ZipFile
-import utils
+import json
 
+import utils
 from EasyEas.models import *
 from EasyEas import forms
 
-from datetime import datetime
 
 @csrf_exempt
 def upload_build(request):
@@ -87,6 +88,56 @@ def get_plist(request, app_name, app_version):
                                 "bundle_identifier": bundle_id,
                                    "bundle_version": bundle_version,
                                         "app_title": app_title})
+
+def tagged_apps(request, tag_name):
+
+    apps = App.objects.filter(tags__name=tag_name).order_by('-creation_date')
+
+    host = request.get_host()
+
+    return render_to_response("tagged_build_list.html", {'apps': apps, 'host': host}, context_instance=RequestContext(request))
+
+
+def toggle_tag(request, app_id, tag_name):
+
+    try:
+        tag = Tag.objects.get(name__iexact=tag_name)
+    except Tag.DoesNotExist:
+        tag = Tag(name=tag_name)
+        tag.save()
+
+    app = App.objects.get(id=app_id)
+    app_tags = app.tags.filter(id=tag.id)
+
+    if(app_tags.count() < 1):
+        app.tags.add(tag)
+    else:
+        app.tags.remove(tag)
+
+    app.save()
+    return HttpResponse(content="%s version %s now has %s tags." % (app.name, app.version, app.tags.count()))
+
+def app_tag(request, app_id):
+
+    app = App.objects.get(id=app_id)
+    named_tags = [tag.name for tag in app.tags.all()]
+    
+    json_dict = dict({
+        'tags' : named_tags})
+
+    json_string = json.dumps(json_dict)
+
+    return HttpResponse(content=json_string, mimetype="application/json")
+
+def all_tags(request):
+    named_tags = [tag.name for tag in Tag.objects.all()]
+    
+    json_dict = dict({
+        'tags' : named_tags})
+
+    json_string = json.dumps(json_dict)
+
+    return HttpResponse(content=json_string, mimetype="application/json")
 
 def get_ipa(request, app_name, app_version):
 

@@ -17,12 +17,16 @@ urlpatterns = patterns('EasyEas.views',
     # Uncomment the next line to enable the admin:
      url(r'^admin/', include(admin.site.urls)),
      url(r'^apps/list', 'apps'), 
+     url(r'^apps/(?P<tag_name>\w+)/list', 'tagged_apps'),
      url(r'^apps/upload', 'upload_build'), 
      url(r'^apps/plist/(?P<app_name>\w+)/(?P<app_version>.+)', 'get_plist'),
      url(r'^apps/ipa/(?P<app_name>\w+)/(?P<app_version>.+)', 'get_ipa'),
      url(r'^apps/dsym/(?P<app_name>\w+)/(?P<app_version>.+).dSYM', 'get_dsym'),
-     url(r'^apps/approve/(?P<app_id>\w+)', 'approve_app'),
-     url(r'^apps/unapprove/(?P<app_id>\w+)', 'unapprove_app'),
+     url(r'^app/(?P<app_id>\w+)/approve', 'approve_app'),
+     url(r'^app/(?P<app_id>\w+)/unapprove', 'unapprove_app'),
+     url(r'^app/(?P<app_id>\w+)/tag/(?P<tag_name>\w+)', 'toggle_tag'),
+     url(r'^app/(?P<app_id>\w+)/tag', 'app_tag'),
+     url(r'^app/tags/all', 'all_tags'),
 )
 
 urlpatterns += patterns('', 
