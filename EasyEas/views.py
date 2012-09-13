@@ -74,7 +74,7 @@ def unapprove_app(request, app_id):
     return HttpResponseRedirect("/apps/list")
 
 def get_plist(request, app_name, app_version):
-    theZip = ZipFile(settings.STATIC_ROOT + app_name + "-" + app_version + ".ipa")
+    theZip = ZipFile(settings.MEDIA_ROOT + app_name + "-" + app_version + ".ipa")
     parsed_dict = utils.plist_from_ipa(theZip)
 
     url = "http://%s/apps/ipa/%s/%s" % (request.get_host(), app_name, app_version) 
@@ -141,13 +141,13 @@ def all_tags(request):
 
 def get_ipa(request, app_name, app_version):
 
-    app = open(settings.STATIC_ROOT + app_name + "-" + app_version + ".ipa", "r")
+    app = open(settings.MEDIA_ROOT + app_name + "-" + app_version + ".ipa", "r")
     
     return HttpResponse(app, mimetype="application/octet-stream")
 
 def get_dsym(request, app_name, app_version):
 
-    app_file = open("%s%s-%s.app.dSYM.zip" % (settings.STATIC_ROOT, app_name, app_version), "r")
+    app_file = open("%s%s-%s.app.dSYM.zip" % (settings.MEDIA_ROOT, app_name, app_version), "r")
 
     return HttpResponse(app_file, mimetype="application/octet-stream")
 

@@ -9,7 +9,7 @@ import biplist
 
 def ipa_path(app_name, version):
 
-    path = "%s%s-%s.ipa" % (settings.STATIC_ROOT, app_name, version)
+    path = "%s%s-%s.ipa" % (settings.MEDIA_ROOT, app_name, version)
     return path
 
 def save_uploaded_file_to_temp(file_from_form):
@@ -52,10 +52,10 @@ def save_uploaded_ipa_and_dsym(the_ipa, the_dsym):
             icon_path = [f.filename for f in ipa_file.filelist if icon_search_pattern.match(f.filename)][0] 
             extracted_icon_path = ipa_file.extract(icon_path, path=temp_dir)
             print extracted_icon_path
-            shutil.move(extracted_icon_path, "%s/%s-%s.png" % (settings.STATIC_ROOT, app_name, version))
+            shutil.move(extracted_icon_path, "%s/%s-%s.png" % (settings.MEDIA_ROOT, app_name, version))
            
-    new_ipa_location = "%s/%s-%s.ipa" % (settings.STATIC_ROOT, app_name, version)
-    new_dsym_location = "%s/%s-%s.app.dSYM.zip" % (settings.STATIC_ROOT, app_name, version)
+    new_ipa_location = "%s/%s-%s.ipa" % (settings.MEDIA_ROOT, app_name, version)
+    new_dsym_location = "%s/%s-%s.app.dSYM.zip" % (settings.MEDIA_ROOT, app_name, version)
 
     shutil.move(temp_ipa_path, new_ipa_location)
     shutil.move(temp_dsym_path, new_dsym_location)
