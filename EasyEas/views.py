@@ -75,9 +75,14 @@ def apps(request):
         auth = "login"
 
     host = request.get_host()
+    tags = Tag.objects.all()
 
 
-    return render_to_response("appstore_index.html", {'apps': apps, 'host': host, 'auth': auth}, context_instance=RequestContext(request))
+    return render_to_response("appstore_index.html", {'apps': apps,
+        'host': host,
+        'auth': auth,
+        'tags': tags},
+        context_instance=RequestContext(request))
 
 def approve_app(request, app_id):
 
