@@ -40,6 +40,31 @@ def upload_build(request):
         form = forms.UploadBuildForm()
         return render_to_response("forms/upload.html",  {'form': form})
 
+def app_homepage(request):
+
+
+    if request.user.is_authenticated():
+        apps = App.objects.all().order_by('-creation_date')
+        auth = "logout"
+    else:
+        apps = App.objects.filter(approved=True).order_by('-creation_date')
+        auth = "login"
+
+
+    products = Product.objects.all()
+    apps = []
+
+    for p in products:
+        app = App.objects.filter(product=p).latest('creation_date')
+        apps.append(app)
+
+    host = request.get_host()
+
+    return render_to_response("appstore_index.html", {'apps': apps, 
+                                                    'host': host, 
+                                                    'auth': auth},
+                                                    context_instance=RequestContext(request))
+
 def apps(request):
 
     if request.user.is_authenticated():
