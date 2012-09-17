@@ -60,7 +60,7 @@ def app_homepage(request):
 
     host = request.get_host()
 
-    return render_to_response("appstore_index.html", {'apps': apps, 
+    return render_to_response("homepage.html", {'apps': apps, 
                                                     'host': host, 
                                                     'auth': auth},
                                                     context_instance=RequestContext(request))
