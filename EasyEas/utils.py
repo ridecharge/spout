@@ -9,7 +9,7 @@ import biplist
 
 def ipa_path(app_name, version):
 
-    path = "%s%s-%s.ipa" % (settings.MEDIA_ROOT, app_name, version)
+    path = "%s/%s-%s.ipa" % (settings.MEDIA_ROOT, app_name, version)
     return path
 
 def save_uploaded_file_to_temp(file_from_form):
