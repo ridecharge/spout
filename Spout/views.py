@@ -40,6 +40,17 @@ def upload_build(request):
         form = forms.UploadBuildForm()
         return render_to_response("forms/upload.html",  {'form': form})
 
+@csrf_exempt
+def post_crash(request):
+
+    print request.body;
+
+    crash_file = open("%s/crash.txt" % settings.MEDIA_ROOT, "w")
+
+    crash_file.writelines(request.body)
+    
+    return HttpResponse(content="OK!!")
+
 def app_homepage(request):
 
 

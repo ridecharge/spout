@@ -28,6 +28,8 @@ urlpatterns = patterns('Spout.views',
      url(r'^app/(?P<app_id>\w+)/tag', 'app_tag'),
      url(r'^apps/tag/(?P<tag_name>\w+)', 'tagged_apps'),
      url(r'^app/tags/all', 'all_tags'),
+
+     url(r'^crash/report/post', 'post_crash'),
 )
 
 urlpatterns += patterns('', 
