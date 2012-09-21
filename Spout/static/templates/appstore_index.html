@@ -1,0 +1,46 @@
+{% extends 'base_appstore.html' %}
+
+{% block head %}
+        <script type="text/javascript">
+            $(document).ready(function() {
+                
+                    $(".tag").each(function(index) {
+                        var me = this;
+                        var tag_id = $(me).attr('class').split(" ")[1]
+                        $.getJSON("/app/" + this.id + "/tags", '', function(data) {
+
+                            console.log($(me).attr('class').split(" ")[1]);
+                            $.each(data, function(key, value) {
+                                theTags = data['tags'];
+                                if (theTags.length > 0 && $.inArray(tag_id, theTags) > -1) {
+                                    $(me).attr('checked', true);
+                                }
+                            });
+                        });
+                    });
+            $(".tag").click(function() {
+                    console.log();
+                    tag_id = $(this).attr('class').split(" ")[1]
+
+                    $.getJSON("/app/" + this.id + "/tag/" + tag_id);
+                    console.log("Clicked.");
+                });
+            });
+        </script>
+{% endblock %}
+
+{% block title %}RideCharge Enterprise App Store{% endblock %}
+
+{% block textual_app_info %}<div class="span10">
+                            {{ app.note }}
+                            </div> <div class="span2 hidemobile" align="center" id="checkboxes"> 
+                            <a href="http://{{ host }}/apps/dsym/{{ app.name }}/{{ app.version }}.dSYM.zip">dSYM</a><br>
+                        </div>
+{% endblock %}
+
+{% block app_footer %}
+        {% for tag in tags %}
+        <input type="checkbox" id="{{ app.id }}" class="tag {{ tag.name }}">{{ tag.name }}&nbsp;&nbsp;
+        {% endfor %}
+{% endblock %}
+ 

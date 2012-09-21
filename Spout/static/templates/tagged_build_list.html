@@ -1,0 +1,9 @@
+{% extends 'base_appstore.html' %}
+
+
+{% block title %}{{ tag.name }} App Store {% endblock %}
+
+{% block textual_app_info %} <div class="span10">
+                            {{ app.comment }}
+                        </div>
+                        {% endblock %}
