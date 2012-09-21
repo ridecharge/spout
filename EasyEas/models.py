@@ -22,9 +22,19 @@ class App(models.Model):
     name = models.CharField(max_length=255)
     product = models.ForeignKey('Product')
     note = models.CharField(max_length=255)
+    comment = models.CharField(max_length=255, blank=True, null=True)
     creation_date = models.DateTimeField()
     approved = models.BooleanField(default=True)
     device_type = models.CharField(choices=APP_TYPE_CHOICES, default="IOS", max_length=255)
+    tags = models.ManyToManyField('Tag')
+
+class Tag(models.Model):
+
+    def __unicode__(self):
+        return self.name
+
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
 
 class Product(models.Model):
 

@@ -1,64 +1,46 @@
-<html>
-    <head>
-        <title>RideCharge Enterprise App Store</title>
-        <link href="{{ STATIC_URL }}css/bootstrap-responsive.min.css" rel="stylesheet">
-        <!--<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">-->
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <style type="text/css">
-            .app {
-                padding: 10px;
-                border: solid 1px black;
-                margin: 10px;
-            }
-            
-        </style>
-    </head>
+{% extends 'base_appstore.html' %}
 
-    <body>
-            <div class="offset1">
-                    <div class="span6">
-                            {% for app in apps %}
-                        <div class="row-fluid" style="border: 1px solid black; padding: 3px; margin: 4px">
-                            <div class="span12">
-                                <div class="row-fluid">
-                                    <div class="span12">
-                                        <div class="row-fluid">
-                                            <div class="span2">
-                                                <a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.name }}/{{ app.version }}">
-                                                <img width='55' height='55' src="{{ MEDIA_URL }}{{ app.name }}-{{ app.version }}.png"></a><br>
-                                                
-                                            </div>
-                                            <div class="span10">
-                                                <div class="row-fluid">
-                                                    <div class="span6">
-                                                        {{ app.name }}
-                                                    </div>
-                                                    <div class="span3" align="center">
-                                                        {{ app.version }} 
-                                                    </div>
-                                                    <div class="span3" align="center">
-                                                            <div class="span12">
-                                                                {{ app.creation_date|date:"n/j  g:i A" }}<br>
-                                                                <a href="http://{{ host }}/apps/dsym/{{ app.name }}/{{ app.version }}.dSYM.zip">dSYM</a>
-                                                            </div>
-                                                    </div>
-                                                </div>
-                                                <div class="row-fluid">
-                                                    <div class="span12">
-                                                        {{ app.note }}
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+{% block head %}
+        <script type="text/javascript">
+            $(document).ready(function() {
+                
+                    $(".tag").each(function(index) {
+                        var me = this;
+                        var tag_id = $(me).attr('class').split(" ")[1]
+                        $.getJSON("/app/" + this.id + "/tags", '', function(data) {
+
+                            console.log($(me).attr('class').split(" ")[1]);
+                            $.each(data, function(key, value) {
+                                theTags = data['tags'];
+                                if (theTags.length > 0 && $.inArray(tag_id, theTags) > -1) {
+                                    $(me).attr('checked', true);
+                                }
+                            });
+                        });
+                    });
+            $(".tag").click(function() {
+                    console.log();
+                    tag_id = $(this).attr('class').split(" ")[1]
+
+                    $.getJSON("/app/" + this.id + "/tag/" + tag_id);
+                    console.log("Clicked.");
+                });
+            });
+        </script>
+{% endblock %}
+
+{% block title %}RideCharge Enterprise App Store{% endblock %}
+
+{% block textual_app_info %}<div class="span10">
+                            {{ app.note }}
+                            </div> <div class="span2 hidemobile" align="center" id="checkboxes"> 
+                            <a href="http://{{ host }}/apps/dsym/{{ app.name }}/{{ app.version }}.dSYM.zip">dSYM</a><br>
                         </div>
-                        {% endfor %}
-                    </div>
-            </div>
+{% endblock %}
 
-    </body>
-  </html>{% if user.is_authenticated %}
-                                    {% if app.approved %}<a href="unapprove/{{ app.id }}">unapprove</a>{% else %}<a href="approve/{{ app.id }}">approve</a>{% endif %}
-                                    {% endif %}
+{% block app_footer %}
+        {% for tag in tags %}
+        <input type="checkbox" id="{{ app.id }}" class="tag {{ tag.name }}">{{ tag.name }}&nbsp;&nbsp;
+        {% endfor %}
+{% endblock %}
+ 
