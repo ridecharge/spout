@@ -53,6 +53,12 @@ def save_uploaded_ipa_and_dsym(the_ipa, the_dsym):
             extracted_icon_path = ipa_file.extract(icon_path, path=temp_dir)
             print extracted_icon_path
             shutil.move(extracted_icon_path, "%s/%s-%s.png" % (settings.MEDIA_ROOT, app_name, version))
+
+    app_binary_location = ipa_file.extract("Payload/%s.app/%s", (ipa_plist['CFBundleName'], ipa_plist['CFBundleExecutable']), path=temp_dir)
+
+    dump_handle = os.popen("dwarfdump --uuid %s", app_binary_location)
+    uuid = dump_handle.read().split(' ')[1]
+    dump_handle.close()
            
     new_ipa_location = "%s/%s-%s.ipa" % (settings.MEDIA_ROOT, app_name, version)
     new_dsym_location = "%s/%s-%s.app.dSYM.zip" % (settings.MEDIA_ROOT, app_name, version)
@@ -62,7 +68,7 @@ def save_uploaded_ipa_and_dsym(the_ipa, the_dsym):
 
     ipa_file.close()
 
-    app_info = dict({'version': version, 'app_name': app_name })
+    app_info = dict({'version': version, 'app_name': app_name, 'uuid': uuid })
     return app_info
 
 
@@ -84,3 +90,6 @@ def app_name_from_filelist(filelist):
     app_name = "".join([thefile.filename for thefile in filelist if regex.match(thefile.filename)][0].split(".")[0:-1][0].split("/")[-1])
     return app_name
 
+def decode_crash_report(crash_report):
+
+    return True
