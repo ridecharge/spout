@@ -23,6 +23,7 @@ def save_uploaded_file_to_temp(file_from_form):
 
     return temp_file_path
 
+
 def save_uploaded_ipa_and_dsym(the_ipa, the_dsym):
 
     temp_ipa_path = save_uploaded_file_to_temp(the_ipa)
@@ -90,6 +91,35 @@ def app_name_from_filelist(filelist):
     app_name = "".join([thefile.filename for thefile in filelist if regex.match(thefile.filename)][0].split(".")[0:-1][0].split("/")[-1])
     return app_name
 
-def decode_crash_report(crash_report):
+def decode_crash_report(raw_crash_report):
 
-    return True
+    if os.path.isfile("%s/plcrashutil" % settings.UTILITIES_ROOT) == False:
+        raise IOError("Could not file plcrashutil in your UTILITIES_ROOT defined in settings.py")
+    if os.path.isfile(raw_crash_report) == False:
+        raise IOError("Could not find crash report '%s'." % raw_crash_report)
+
+    converted_crash = os.popen("%s/plcrashutil convert --format=ios %s" % (settings.UTILITIES_ROOT, raw_crash_report))
+
+    temp_crash_loc = mkstemp()[1]
+    temp_crash_rep = open(temp_crash_loc, "w")
+
+    shutil.copyfileobj(converted_crash, temp_crash_rep)
+
+    converted_crash.close()
+    temp_crash_rep.close()
+    temp_crash_rep = open(temp_crash_loc, "r")
+
+    return temp_crash_rep
+
+def symbolicate_crash(crash_report, dsym_location):
+
+    temp_symd = mkstemp()[1]
+
+    export_cmd = "export DEVELOPER_DIR=`xcode-select --print-path`;"
+    sym_cmd =  "%s/symbolicatecrash -o %s %s %s" % (settings.UTILITIES_ROOT, temp_symd, crash_report, dsym_location)
+    print sym_cmd
+    os.system(export_cmd + sym_cmd)
+
+    symd_crash = open(temp_symd, "r")
+
+    return symd_crash
