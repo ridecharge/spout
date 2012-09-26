@@ -49,6 +49,9 @@ MEDIA_URL = '/media/'
 # Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/static/'
 
+
+UTILITIES_ROOT = PROJECT_PATH + "/utils"
+
 # Additional locations of static files
 STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
