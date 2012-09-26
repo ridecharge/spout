@@ -1,4 +1,4 @@
-#!/Users/akfreas/Dropbox/sashimiblade/ee/bin/python
+#!/Users/akfreas/Dropbox/sashimiblade/spout/bin/python
 # EASY-INSTALL-ENTRY-SCRIPT: 'Pygments==1.5','console_scripts','pygmentize'
 __requires__ = 'Pygments==1.5'
 import sys
