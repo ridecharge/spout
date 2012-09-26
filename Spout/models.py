@@ -26,6 +26,7 @@ class App(models.Model):
     creation_date = models.DateTimeField()
     approved = models.BooleanField(default=True)
     device_type = models.CharField(choices=APP_TYPE_CHOICES, default="IOS", max_length=255)
+    uuid = models.CharField(max_length=255, blank=True, null=True, unique=True)
     tags = models.ManyToManyField('Tag')
 
 class Tag(models.Model):
@@ -43,6 +44,9 @@ class Product(models.Model):
 
     name = models.CharField(max_length=255)
 
+class Crash(models.Model):
+    uuid = models.ForeignKey(App, to_field="uuid")
+    body = models.TextField()
 
 def delete_app(sender, instance, signal, *args, **kwargs):
 
