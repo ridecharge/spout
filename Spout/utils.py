@@ -12,6 +12,11 @@ def ipa_path(app_name, version):
     path = "%s/%s-%s.ipa" % (settings.MEDIA_ROOT, app_name, version)
     return path
 
+def dsym_path(app_name, version):
+
+    path = "%s/%s-%s.dSYM.zip" % (settings.MEDIA_ROOT, app_name, version)
+    return path
+
 def save_uploaded_file_to_temp(file_from_form):
 
     temp_file, temp_file_path = mkstemp()
@@ -55,10 +60,11 @@ def save_uploaded_ipa_and_dsym(the_ipa, the_dsym):
             print extracted_icon_path
             shutil.move(extracted_icon_path, "%s/%s-%s.png" % (settings.MEDIA_ROOT, app_name, version))
 
-    app_binary_location = ipa_file.extract("Payload/%s.app/%s", (ipa_plist['CFBundleName'], ipa_plist['CFBundleExecutable']), path=temp_dir)
+    app_binary_location = ipa_file.extract("Payload/%s.app/%s" % (ipa_plist['CFBundleName'], ipa_plist['CFBundleExecutable']), path=temp_dir)
 
-    dump_handle = os.popen("dwarfdump --uuid %s", app_binary_location)
+    dump_handle = os.popen("dwarfdump --uuid %s" % app_binary_location)
     uuid = dump_handle.read().split(' ')[1]
+    print uuid
     dump_handle.close()
            
     new_ipa_location = "%s/%s-%s.ipa" % (settings.MEDIA_ROOT, app_name, version)
@@ -98,28 +104,42 @@ def decode_crash_report(raw_crash_report):
     if os.path.isfile(raw_crash_report) == False:
         raise IOError("Could not find crash report '%s'." % raw_crash_report)
 
-    converted_crash = os.popen("%s/plcrashutil convert --format=ios %s" % (settings.UTILITIES_ROOT, raw_crash_report))
-
+    
     temp_crash_loc = mkstemp()[1]
-    temp_crash_rep = open(temp_crash_loc, "w")
 
-    shutil.copyfileobj(converted_crash, temp_crash_rep)
+    os.system("%s/plcrashutil convert --format=ios %s > %s 2> /dev/null" % (settings.UTILITIES_ROOT, raw_crash_report, temp_crash_loc))
 
-    converted_crash.close()
-    temp_crash_rep.close()
     temp_crash_rep = open(temp_crash_loc, "r")
 
-    return temp_crash_rep
+    return (temp_crash_rep, temp_crash_loc)
 
-def symbolicate_crash(crash_report, dsym_location):
+def symbolicate_crash(crash_report, dsym_zip_location, ipa_location):
+
+
+    the_zip = ZipFile(dsym_zip_location)
+    the_ipa = ZipFile(ipa_location)
+
+    temp_location = mkdtemp()
+
+    the_zip.extractall(path=temp_location)
+    the_ipa.extractall(path=temp_location)
+
+    rx = re.compile("^(.*DWARF/$)")
+    dsym_dir = [x.filename for x in the_zip.filelist if rx.match(x.filename)][0]
+
+    rx = re.compile("Payload/.*.app/$")
+    binary_dir = [x.filename for x in the_ipa.filelist if rx.match(x.filename)][0]
+
+    temp_dsym_path = temp_location + "/" + dsym_dir
+    temp_ipa_path = temp_location + "/" + binary_dir
 
     temp_symd = mkstemp()[1]
 
     export_cmd = "export DEVELOPER_DIR=`xcode-select --print-path`;"
-    sym_cmd =  "%s/symbolicatecrash -o %s %s %s" % (settings.UTILITIES_ROOT, temp_symd, crash_report, dsym_location)
+    sym_cmd =  "%s/symbolicatecrash -v -o %s %s %s %s" % (settings.UTILITIES_ROOT, temp_symd, crash_report, temp_dsym_path, temp_ipa_path)
     print sym_cmd
     os.system(export_cmd + sym_cmd)
 
     symd_crash = open(temp_symd, "r")
 
-    return symd_crash
+    return (symd_crash, temp_symd)
