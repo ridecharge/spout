@@ -20,6 +20,8 @@ from Spout import forms
 @csrf_exempt
 def upload_build(request):
 
+    ret_val = None
+
     if request.method == 'POST':
         form = forms.UploadBuildForm(request.POST, request.FILES)    
         if form.is_valid():
@@ -34,6 +36,8 @@ def upload_build(request):
             print app_info
             app = App(version=app_info['version'], note=form.cleaned_data['note'], name=app_info['app_name'], product=form.cleaned_data['product'], creation_date=datetime.now(), uuid=app_info['uuid'])
 
+
+
             if "tag" in request.POST.keys():
                 tag_name = request.POST['tag']
 
@@ -42,18 +46,25 @@ def upload_build(request):
                 except Tag.DoesNotExist:
                     tag = Tag(name=tag_name, description="Branch %s" % tag_name)
                     tag.save()
-                    app.tag = tag
+
+
+
             try:
                 app.save()
-                return HttpResponseRedirect("/apps/list")
+                if tag: 
+                    app.tags.add(tag)
+                    app.save()
+
+                ret_val = HttpResponseRedirect("/apps/list")
             except IntegrityError:
                 response_string = "The app '%s' already has a version '%s' in the system. Please upload a different version." % (filename, app_info['version'])
-                return HttpResponse(status="409", content=response_string)
+                ret_val = HttpResponse(status="409", content=response_string)
         else:
-            return HttpResponse(form.errors)
+            ret_val = HttpResponse(form.errors)
     else:
         form = forms.UploadBuildForm()
-        return render_to_response("forms/upload.html",  {'form': form})
+        ret_val = render_to_response("forms/upload.html",  {'form': form})
+    return ret_val
 
 @csrf_exempt
 def post_crash(request):
@@ -61,7 +72,7 @@ def post_crash(request):
     print request.body;
     
     if request.body:
-"""
+        """
         temp_crash_path = tempfile.mkstemp()[1]
 
         crash_file = open(temp_crash_path, "w")
