@@ -6,7 +6,11 @@ from django.db import IntegrityError
 from django.template import RequestContext
 from datetime import datetime
 from zipfile import ZipFile
+import tempfile
+import shutil
 import json
+import time
+import re
 
 import utils
 from Spout.models import *
@@ -20,20 +24,31 @@ def upload_build(request):
         form = forms.UploadBuildForm(request.POST, request.FILES)    
         if form.is_valid():
 
+
             filename = request.FILES['ipa_file'].name
             filename_list = filename.split('.')
             filename_list = filename_list[0:-1]
             filename = ".".join(filename_list)
 
             app_info = utils.save_uploaded_ipa_and_dsym(request.FILES['ipa_file'], request.FILES['dsym_file'])
-            app = App(version=app_info['version'], note=form.cleaned_data['note'], name=app_info['app_name'], product=form.cleaned_data['product'], creation_date=datetime.now())
+            print app_info
+            app = App(version=app_info['version'], note=form.cleaned_data['note'], name=app_info['app_name'], product=form.cleaned_data['product'], creation_date=datetime.now(), uuid=app_info['uuid'])
+
+            if "tag" in request.POST.keys():
+                tag_name = request.POST['tag']
+
+                try:
+                    tag = Tag.objects.get(name__iexact=tag_name)
+                except Tag.DoesNotExist:
+                    tag = Tag(name=tag_name, description="Branch %s" % tag_name)
+                    tag.save()
+                    app.tag = tag
             try:
                 app.save()
                 return HttpResponseRedirect("/apps/list")
             except IntegrityError:
                 response_string = "The app '%s' already has a version '%s' in the system. Please upload a different version." % (filename, app_info['version'])
                 return HttpResponse(status="409", content=response_string)
-
         else:
             return HttpResponse(form.errors)
     else:
@@ -44,12 +59,45 @@ def upload_build(request):
 def post_crash(request):
 
     print request.body;
-
-    crash_file = open("%s/crash.txt" % settings.MEDIA_ROOT, "w")
-
-    crash_file.writelines(request.body)
     
-    return HttpResponse(content="OK!!")
+    if request.body:
+"""
+        temp_crash_path = tempfile.mkstemp()[1]
+
+        crash_file = open(temp_crash_path, "w")
+        crash_file.writelines(request.body)
+
+        regx = re.compile("(.{8}-.{4}-.{4}-.{4}-.{12})")
+
+        crash_file = open(temp_crash_path, "r")
+        crashed_uuid = [regx.search(x) for x in crash_file.readlines() if regx.search(x)][0].groups()[0]
+
+        tmp_decoded_crash, tmp_decoded_crash_loc = utils.decode_crash_report(temp_crash_path)
+        print tmp_decoded_crash, tmp_decoded_crash_loc, temp_crash_path, crashed_uuid
+
+        app = App.objects.get(uuid=crashed_uuid)
+
+        """
+        ipa_path = utils.ipa_path(app.name, app.version)
+        dsym_path = utils.dsym_path(app.name, app.version)
+        temp_path = tempfile.mkdtemp()
+
+        crash_obj = json.loads(request.body)
+
+
+
+
+        symbolicated_crash, symbolicated_crash_location = utils.symbolicate_crash(tmp_decoded_crash_loc, dsym_path, ipa_path)
+        crash_file.close()
+        print temp_crash_path, symbolicated_crash_location 
+
+        shutil.copy(symbolicated_crash_location, "~/Desktop/crash19999.txt")
+
+        
+        
+        return HttpResponse(content="OK!!")
+    else:
+        return HttpResponse(content="No crash data posted.")
 
 def app_homepage(request):
 

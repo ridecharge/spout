@@ -113,7 +113,7 @@ def decode_crash_report(raw_crash_report):
 
     return (temp_crash_rep, temp_crash_loc)
 
-def symbolicate_crash(crash_report, dsym_zip_location, ipa_location):
+def symbolicate_crash(crash_json, dsym_zip_location, ipa_location):
 
 
     the_zip = ZipFile(dsym_zip_location)
@@ -127,7 +127,7 @@ def symbolicate_crash(crash_report, dsym_zip_location, ipa_location):
     rx = re.compile("^(.*DWARF/$)")
     dsym_dir = [x.filename for x in the_zip.filelist if rx.match(x.filename)][0]
 
-    rx = re.compile("Payload/.*.app/$")
+    rx = re.compile("Payload/(.*).app/")
     binary_dir = [x.filename for x in the_ipa.filelist if rx.match(x.filename)][0]
 
     temp_dsym_path = temp_location + "/" + dsym_dir
