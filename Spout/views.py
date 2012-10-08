@@ -125,8 +125,11 @@ def app_homepage(request):
     apps = []
 
     for p in products:
-        app = App.objects.filter(product=p).latest('creation_date')
-        apps.append(app)
+        try:
+            app = App.objects.filter(product=p).latest('creation_date')
+            apps.append(app)
+        except App.DoesNotExist:
+            pass
 
     host = request.get_host()
 
