@@ -28,7 +28,7 @@ def save_uploaded_file_to_temp(file_from_form):
 
     return temp_file_path
 
-def save_uploaded_dsym(the_dsym):
+def save_uploaded_dsym(the_dsym, uuid):
 
     temp_dsym_path = save_uploaded_file_to_temp(the_dsym)
     new_dsym_location = dsym_path(uuid)

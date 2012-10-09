@@ -34,7 +34,7 @@ def upload_build(request):
 
             app_info = utils.save_uploaded_ipa(request.FILES['ipa_file'])
             if 'dsym_file' in request.FILES.keys():
-                utils.save_uploaded_dsym(request.FILES['dsym_file'])
+                utils.save_uploaded_dsym(request.FILES['dsym_file'], app_info['uuid'])
             print app_info
             app = App(version=app_info['version'], note=form.cleaned_data['note'], name=app_info['app_name'], product=form.cleaned_data['product'], creation_date=datetime.now(), uuid=app_info['uuid'])
 
