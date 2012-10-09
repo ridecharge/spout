@@ -12,7 +12,7 @@ def ipa_path(uuid):
     path = "%s/%s.ipa" % (settings.MEDIA_ROOT, uuid)
     return path
 
-def dsym_path(app_name, version):
+def dsym_path(uuid):
 
     path = "%s/%s.dSYM.zip" % (settings.MEDIA_ROOT, uuid)
     return path
