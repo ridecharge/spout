@@ -39,7 +39,7 @@
 {% endblock %}
 
 {% block app_footer %}
-        {% for tag in tags %}
+        {% for tag in app.tags.all %}
         <input type="checkbox" id="{{ app.id }}" class="tag {{ tag.name }}">{{ tag.name }}&nbsp;&nbsp;
         {% endfor %}
 {% endblock %}
