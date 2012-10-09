@@ -32,11 +32,13 @@ def upload_build(request):
             filename_list = filename_list[0:-1]
             filename = ".".join(filename_list)
 
-            app_info = utils.save_uploaded_ipa_and_dsym(request.FILES['ipa_file'], request.FILES['dsym_file'])
+            app_info = utils.save_uploaded_ipa(request.FILES['ipa_file'])
+            if 'dsym_file' in request.FILES.keys():
+                utils.save_uploaded_dsym(request.FILES['dsym_file'])
             print app_info
             app = App(version=app_info['version'], note=form.cleaned_data['note'], name=app_info['app_name'], product=form.cleaned_data['product'], creation_date=datetime.now(), uuid=app_info['uuid'])
 
-
+            tag = None
 
             if "tag" in request.POST.keys():
                 tag_name = request.POST['tag']
@@ -47,18 +49,12 @@ def upload_build(request):
                     tag = Tag(name=tag_name, description="Branch %s" % tag_name)
                     tag.save()
 
-
-
-            try:
+            app.save()
+            if tag: 
+                app.tags.add(tag)
                 app.save()
-                if tag: 
-                    app.tags.add(tag)
-                    app.save()
 
-                ret_val = HttpResponseRedirect("/apps/list")
-            except IntegrityError:
-                response_string = "The app '%s' already has a version '%s' in the system. Please upload a different version." % (filename, app_info['version'])
-                ret_val = HttpResponse(status="409", content=response_string)
+            ret_val = HttpResponseRedirect("/apps/list")
         else:
             ret_val = HttpResponse(form.errors)
     else:
@@ -89,7 +85,7 @@ def post_crash(request):
         app = App.objects.get(uuid=crashed_uuid)
 
         """
-        ipa_path = utils.ipa_path(app.name, app.version)
+        ipa_path = utils.ipa_path(app.uuid)
         dsym_path = utils.dsym_path(app.name, app.version)
         temp_path = tempfile.mkdtemp()
 
@@ -176,11 +172,11 @@ def unapprove_app(request, app_id):
 
     return HttpResponseRedirect("/apps/list")
 
-def get_plist(request, app_name, app_version):
-    theZip = ZipFile("%s/%s-%s.ipa" % (settings.MEDIA_ROOT, app_name, app_version))
+def get_plist(request, uuid):
+    theZip = ZipFile(utils.ipa_path(uuid))
     parsed_dict = utils.plist_from_ipa(theZip)
 
-    url = "http://%s/apps/ipa/%s/%s" % (request.get_host(), app_name, app_version) 
+    url = "http://%s/apps/ipa/%s.ipa" % (request.get_host(), uuid) 
     bundle_id = parsed_dict['CFBundleIdentifier']
     bundle_version = parsed_dict['CFBundleVersion']
     app_title = parsed_dict['CFBundleName']
@@ -242,15 +238,15 @@ def all_tags(request):
 
     return HttpResponse(content=json_string, mimetype="application/json")
 
-def get_ipa(request, app_name, app_version):
+def get_ipa(request, uuid):
 
-    app = open("%s/%s-%s.ipa" % (settings.MEDIA_ROOT, app_name, app_version), "r")
+    app = open(utils.ipa_path(uuid), "r")
     
     return HttpResponse(app, mimetype="application/octet-stream")
 
-def get_dsym(request, app_name, app_version):
+def get_dsym(request, uuid):
 
-    app_file = open("%s/%s-%s.app.dSYM.zip" % (settings.MEDIA_ROOT, app_name, app_version), "r")
+    app_file = open(utils.dsym_path(uuid), "r")
 
     return HttpResponse(app_file, mimetype="application/octet-stream")
 

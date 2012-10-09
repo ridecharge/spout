@@ -7,14 +7,14 @@ import re
 import biplist
 
 
-def ipa_path(app_name, version):
+def ipa_path(uuid):
 
-    path = "%s/%s-%s.ipa" % (settings.MEDIA_ROOT, app_name, version)
+    path = "%s/%s.ipa" % (settings.MEDIA_ROOT, uuid)
     return path
 
 def dsym_path(app_name, version):
 
-    path = "%s/%s-%s.dSYM.zip" % (settings.MEDIA_ROOT, app_name, version)
+    path = "%s/%s.dSYM.zip" % (settings.MEDIA_ROOT, uuid)
     return path
 
 def save_uploaded_file_to_temp(file_from_form):
@@ -28,11 +28,15 @@ def save_uploaded_file_to_temp(file_from_form):
 
     return temp_file_path
 
+def save_uploaded_dsym(the_dsym):
 
-def save_uploaded_ipa_and_dsym(the_ipa, the_dsym):
+    temp_dsym_path = save_uploaded_file_to_temp(the_dsym)
+    new_dsym_location = dsym_path(uuid)
+    shutil.move(temp_dsym_path, new_dsym_location)
+
+def save_uploaded_ipa(the_ipa):
 
     temp_ipa_path = save_uploaded_file_to_temp(the_ipa)
-    temp_dsym_path = save_uploaded_file_to_temp(the_dsym)
     
     ipa_file = ZipFile(temp_ipa_path)
     ipa_contents = ipa_file.filelist
@@ -43,6 +47,12 @@ def save_uploaded_ipa_and_dsym(the_ipa, the_dsym):
     version = ipa_plist['CFBundleVersion']
     app_name = ipa_plist['CFBundleDisplayName']
     app_name = app_name_from_filelist(ipa_file.filelist)
+
+    app_binary_location = ipa_file.extract("Payload/%s.app/%s" % (ipa_plist['CFBundleName'], ipa_plist['CFBundleExecutable']), path=temp_dir)
+
+    dump_handle = os.popen("dwarfdump --uuid %s" % app_binary_location)
+    uuid = dump_handle.read().split(' ')[1]
+    dump_handle.close()
 
     if 'CFBundleIconFiles' in ipa_plist.keys():
         icons = ipa_plist['CFBundleIconFiles']
@@ -58,20 +68,12 @@ def save_uploaded_ipa_and_dsym(the_ipa, the_dsym):
             icon_path = [f.filename for f in ipa_file.filelist if icon_search_pattern.match(f.filename)][0] 
             extracted_icon_path = ipa_file.extract(icon_path, path=temp_dir)
             print extracted_icon_path
-            shutil.move(extracted_icon_path, "%s/%s-%s.png" % (settings.MEDIA_ROOT, app_name, version))
+            shutil.move(extracted_icon_path, "%s/%s.png" % (settings.MEDIA_ROOT, uuid))
 
-    app_binary_location = ipa_file.extract("Payload/%s.app/%s" % (ipa_plist['CFBundleName'], ipa_plist['CFBundleExecutable']), path=temp_dir)
-
-    dump_handle = os.popen("dwarfdump --uuid %s" % app_binary_location)
-    uuid = dump_handle.read().split(' ')[1]
-    print uuid
-    dump_handle.close()
            
-    new_ipa_location = "%s/%s-%s.ipa" % (settings.MEDIA_ROOT, app_name, version)
-    new_dsym_location = "%s/%s-%s.app.dSYM.zip" % (settings.MEDIA_ROOT, app_name, version)
+    new_ipa_location = ipa_path(uuid)
 
     shutil.move(temp_ipa_path, new_ipa_location)
-    shutil.move(temp_dsym_path, new_dsym_location)
 
     ipa_file.close()
 
