@@ -36,6 +36,9 @@
     </head>
 
     <body>
+        {% for tag in tags %}
+        <a href="/apps/tag/{{ tag.name }}">{{ tag.name }}</a>&nbsp;
+        {% endfor %}
         <div class="container-fluid">
             <div class="offset4">
                     <div class="span8">

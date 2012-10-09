@@ -5,7 +5,7 @@ import Spout
 # Uncomment the next two lines to enable the admin:
 from django.contrib import admin
 admin.autodiscover()
-
+tag_regex = r'[\w\/-]+'
 uuid_regex = r'([A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12})'
 
 urlpatterns = patterns('Spout.views',
@@ -24,9 +24,9 @@ urlpatterns = patterns('Spout.views',
      url(r'^apps/plist/(?P<uuid>%s)' % uuid_regex, 'get_plist'),
      url(r'^apps/ipa/(?P<uuid>%s).ipa' % uuid_regex, 'get_ipa'),
      url(r'^apps/dsym/(?P<uuid>%s).dSYM.zip' % uuid_regex, 'get_dsym'),
-     url(r'^app/(?P<app_id>\w+)/tag/(?P<tag_name>\w+)', 'toggle_tag'),
+     url(r'^app/(?P<app_id>\w+)/tag/(?P<tag_name>%s)' % tag_regex, 'toggle_tag'),
      url(r'^app/(?P<app_id>\w+)/tag', 'app_tag'),
-     url(r'^apps/tag/(?P<tag_name>\w+)', 'tagged_apps'),
+     url(r'^apps/tag/(?P<tag_name>%s)' % tag_regex , 'tagged_apps'),
      url(r'^app/tags/all', 'all_tags'),
 
      url(r'^crash/report/post', 'post_crash'),
