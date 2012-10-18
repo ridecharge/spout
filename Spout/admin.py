@@ -4,8 +4,8 @@ from Spout.models import *
 
 class AppAdmin(admin.ModelAdmin):
 
-    list_display = ('product', 'name', 'version', 'approved', 'note', 'creation_date', 'uuid')
-    list_filter = ('product', 'name', 'approved')
+    list_display = ('product', 'name', 'version', 'note', 'creation_date', 'uuid')
+    list_filter = ('product', 'name', 'tags',)
 
 admin.site.register(App, AppAdmin)
 

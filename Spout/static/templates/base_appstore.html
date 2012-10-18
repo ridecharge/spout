@@ -1,8 +1,65 @@
 <html>
     <head>
-        <title>{% block title %}Enterprise App Store{% endblock %}</title>
+        <title>spout - {% block title %}{% endblock %}</title>
+        <link href='http://fonts.googleapis.com/css?family=ABeeZee' rel='stylesheet' type='text/css'>
         <link href="{{ STATIC_URL }}css/bootstrap-responsive.css" rel="stylesheet">
         <script type="text/javascript" src="{{ STATIC_URL }}js/jquery-1.8.1.min.js">
+        </script>
+
+        <script type="text/javascript">
+
+            $(document).ready(function() {
+
+                    $(".product-name").click(function() {
+
+                        $.each($(".product-name"), function(key, elm) {
+                            console.log(elm);
+                            $(elm).css("border", "none");
+                        });
+
+                        $(this).css("border", "1px solid black");
+                            
+                        var productName = this.innerHTML;
+                        $(".tag").remove();
+                        $.getJSON("/tags/filter?product=" + this.innerHTML, '', function(data) {
+                            $.each(data['tags'], function(key, value) {
+                                var $tagRow;
+                                $tagRow = $(".tag-template").clone(true);
+                                $tagRow.removeClass("tag-template").addClass("tag");
+                                $tagRow.removeAttr("style");
+                                $tagRow.find(".tag-title").text(value);
+                                $.getJSON("/apps/filter?tag=" + value + "&product=" + productName + "&latest", '', function(data) {
+                                    console.log(data);
+                                    var app = data['apps'];
+                                    $tagRow.find("#app-itms-url").attr("href", itmsUrlGenerator(app['uuid']));
+                                    $tagRow.find("#app-icon").attr("src", appIconHrefGenerator(app['uuid']));
+                                    $tagRow.find("#app-name").text(app['name']);
+                                    $tagRow.find("#app-version").text(app['version']);
+                                    if (app['refdate'] == "now") {
+                                        $tagRow.find("#app-refdate").text("just uploaded now.");
+                                    } else {
+                                        $tagRow.find("#app-refdate").text("updated " + app['refdate'] + " ago.");
+                                    }
+                                    $tagRow.find("#app-note").text(app['note']);
+                                });
+
+                                $("#taglist").append($tagRow);
+
+                                });
+                            });
+                        });
+                    }); 
+
+        function itmsUrlGenerator(appUUID) {
+            var url ="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/" + appUUID;
+            return url;
+        }           
+
+        function appIconHrefGenerator(appUUID) {
+            var href = "{{ MEDIA_URL }}" + appUUID + ".png";
+            return href;
+        }
+
         </script>
 
             <link rel="apple-touch-icon" href="{{ STATIC_URL }}img/webclip-icon.png"/>
@@ -10,18 +67,114 @@
 
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <style type="text/css">
-            .app {
-                padding: 10px;
-                border: solid 1px black;
-                margin: 10px;
+
+            body { 
+                background-color: #885D19;
             }
-            .app_footer {
-                margin-top: 10px;
-                padding-top: 10px;
-                border-top: 1px solid black;
+                
+            .product-types {
+                margin: 0px;
             }
+
+            .product-type {
+                display: inline;
+                background-color: #D2FF4A;
+                margin: 5px;
+                padding: 0px 5px;
+            }
+
+            .product-names {
+                padding: 5px;
+            }
+            
+            .product-name-li {
+                display: inline;
+            }
+
+            .product-name {
+                background-color:#FFDF8C;
+                margin: 5px;
+                padding: 5px;
+                -webkit-border-radius: 9px;
+                clear: left;
+            }
+
+            
+            .tag {
+                background-color: #F1A42C;
+                display: block;
+                clear: both;
+                height: 140px;
+                margin: 5 5 0 0;
+                padding: 10 10 0 10;
+                border-width: 1px 0px;
+                border-style: solid;
+                border-color: black;
+            }
+
+            .tag-title {
+                float: left;
+                font-family: 'ABeeZee' sans-serif;
+                font-size: 1.4em;
+                width: 50%;
+            }
+
+            .tag-view-all {
+                float: right;
+            }
+
+            .app-information {
+                clear: both;
+            }
+
+
+
+        #app-icon {
+            float: left;
+        }
+
+        #app-version {
+            clear: left;
+            width: 55px;
+        }
+
+        #app-refdate {
+            float: right;
+            width: 50%;
+            text-align: right;
+        }
+
+        #app-name {
+            clear: left;
+        }
+
+        #app-note { 
+            float: none;
+            clear: both;
+            padding: 0 0 0 10px;
+        }
+
+        .left-app-details {
+            width: 30%;
+            float: left;
+        }
+
+        .right-app-details {
+            width: 70%;
+            float: right;
+        }
+
         @media (max-width:500px) {
-               
+
+                body {
+                    margin: 0px;
+                    padding: 0px;
+                    width: 95%;
+                }
+
+                .filter {
+                    background-color: #BBB3FF;
+                }
                 .details {
                     display: inline;
                 }
@@ -29,16 +182,110 @@
                     display: none;
                     visibility: hidden;
                 }
-            }
-                
+        }
         </style>
         {% block head %} {% endblock %}
     </head>
 
     <body>
-        {% for tag in tags %}
-        <a href="/apps/tag/{{ tag.name }}">{{ tag.name }}</a>&nbsp;
-        {% endfor %}
+        <div class="container-fluid">
+            <div class="span12">
+                <div class="row-fluid product-types">
+                    <ul class="product-types">
+                        <li class="product-type">iOS</li>
+                        <li class="product-type">Android</li>
+                    </ul>
+                </div>
+                <div class="row-fluid product-names">
+                    <ul class="product-names">
+                    {% for product in products %}
+                    <li class="product-name-li"><p class="product-name">{{ product.name }}</p></li>
+                    {% endfor %}
+                    </ul>
+                </div>
+                <div id="taglist" class="span12">
+                    <div class="row-fluid tag-template" style="display: none">
+                        <div class="span5">
+                            <div class="tag-title">
+                                The tag.
+                            </div>
+                            <div id="app-refdate" class="span2" align="center">
+                               &nbsp;
+                            </div>
+
+                       </div>
+                        <div class="span12 app-information">
+                            <div class="row-fluid">
+                                <div class="span12">
+                                    <div class="row-fluid">
+                                        <div class="left-app-details">
+                                            <a id="app-itms-url">
+                                                <img id="app-icon" width='55' height='55'></a><br>
+                                            <div id="app-name" class="span6">
+                                               &nbsp;
+                                            </div>
+                                            <div id="app-version" class="span4" align="center">
+                                               &nbsp;
+                                            </div>
+                                        </div>
+                                        <div class="right-app-details">
+                                                                                        Note:
+                                            <div id="app-note" class="row-fluid">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+       <div id="app-info" class="row-fluid app-info" style="hidden; display: none;">
+                            <div class="span12">
+                                <div class="row-fluid">
+                                    <div class="span12">
+                                        <div class="row-fluid">
+                                            <div class="span2 icon">
+                                                <a href="itms-services://?action=download-manifest&url=http://{{ host }}/apps/plist/{{ app.uuid }}">
+                                                    <img width='55' height='55' src="{{ MEDIA_URL }}{{ app.uuid }}.png"></a><br>
+                                            </div>
+                                            <div class="span10 details">
+                                                <div class="row-fluid">
+                                                    <div class="span6">
+                                                        {{ app.name }}
+                                                    </div>
+                                                    <div class="span4" align="center">
+                                                        {{ app.version }} 
+                                                    </div>
+                                                    <div class="span2" align="center">
+                                                        <div class="span12">
+                                                            {{ app.creation_date|date:"n/j  g:i A" }}<br>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="row-fluid comment">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row-fluid">
+                                        <div class="offset2 app_footer">
+                                       </div>
+                                    </div>
+                                </div>
+
+
+
+<!--
+        <div class="container-fluid tag-list">
+            <div class="span12">
+                <div class="row-fluid tag-info">
+                </div>
+            </div>
+        </div>
         <div class="container-fluid">
             <div class="offset4">
                     <div class="span8">
@@ -86,7 +333,8 @@
                         </div>
                         {% endfor %}
                     </div>
-            </div>
+                </div>
+                    -->
 
     </body>
   </html>

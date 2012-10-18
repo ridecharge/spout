@@ -3,8 +3,7 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.views.generic.simple import direct_to_template
 from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
-from django.template import RequestContext, Context, Template
-
+from django.template import RequestContext
 from datetime import datetime
 from zipfile import ZipFile
 import tempfile
@@ -28,7 +27,7 @@ def upload_build(request):
         if form.is_valid():
 
 
-            filename = request.FILES['ipa_file'].name
+qqqfilename = request.FILES['ipa_file'].name
             filename_list = filename.split('.')
             filename_list = filename_list[0:-1]
             filename = ".".join(filename_list)
@@ -130,73 +129,11 @@ def app_homepage(request):
 
     host = request.get_host()
 
-    return render_to_response("homepage.html", {'products': products,
-                                                    'apps': apps, 
+    return render_to_response("homepage.html", {'apps': apps, 
                                                     'host': host, 
                                                     'auth': auth},
                                                     context_instance=RequestContext(request))
 
-def filtered_apps(request):
-
-    request_keys = request.GET.keys()
-
-    apps = App.objects
-    return_many = True
-
-    if 'device_type' in request_keys:
-        apps = apps.filter(device_type=request.GET['device_type'])
-
-    if 'product' in request_keys:
-        product = Product.objects.get(name=request.GET['product'])
-        apps = apps.filter(product=product)
-
-    if 'tag' in request_keys:
-        apps = apps.filter(tags__name=request.GET['tag'])
-
-    if 'latest' in request_keys:
-        apps = [apps.latest('creation_date')]
-        return_many = False
-
-    hdate = lambda(d): Template("{% load humanize %} {{ date|timesince }}").render(Context({'date': d})).lstrip()
-    formdict = lambda(a): dict({'uuid' : a.uuid,
-                             'refdate' : hdate(a.creation_date),
-                                'name' : a.name,
-                                'version' : a.version,
-                                'comment' : a.comment,
-                                'note' : a.note,
-                                })
-    if return_many:
-        serializable_apps = [formdict(app) for app in apps.all()]
-    else:
-        serializable_apps = formdict(apps[0])
-
-    serializable_app_dict = dict({
-        'apps': serializable_apps,
-        })
-
-    json_string = json.dumps(serializable_app_dict)
-
-    return HttpResponse(content=json_string, mimetype="application/json")
-
-def filtered_tags(request):
-
-    request_keys = request.GET.keys()
-    tags = Tag.objects
-
-    if 'product' in request_keys:
-        
-        products_apps = App.objects.filter(product__name=request.GET['product'])
-        tagset_pk = set()
-        [[tagset_pk.add(y.pk) for y in x.tags.all()] for x in products_apps]
-        tags = [tag.name for tag in Tag.objects.filter(pk__in=tagset_pk)]
-
-        tag_dict = dict({ 'tags':
-                    tags })
-
-        json_string = json.dumps(tag_dict)
-
-        return HttpResponse(content=json_string, mimetype="application/json")
-   
 def apps(request):
 
     if request.user.is_authenticated():
@@ -234,30 +171,12 @@ def get_plist(request, uuid):
 
 def tagged_apps(request, tag_name):
 
-
-    ret_val = None
     apps = App.objects.filter(tags__name=tag_name).order_by('-creation_date')
-
 
     host = request.get_host()
 
-    print request.META
+    return render_to_response("tagged_build_list.html", {'apps': apps, 'host': host}, context_instance=RequestContext(request))
 
-    if request.META['HTTP_ACCEPT'] == "application/json":
-
-        app_info = [dict({'uuid': app.uuid, 'creation_ref': Template("{% load humanize %} {{ date|naturaltime }}").render(Context({'date': app.creation_date})).lstrip()}) for app in apps]
-
-        json_dict = dict({ 
-            'apps': app_info
-        })
-
-        json_string = json.dumps(json_dict)
-        ret_val = HttpResponse(content=json_string, mimetype="application/json")
-
-    else:
-        ret_val =  render_to_response("tagged_build_list.html", {'apps': apps, 'host': host}, context_instance=RequestContext(request))
-
-    return ret_val
 
 def toggle_tag(request, app_id, tag_name):
 

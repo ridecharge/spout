@@ -22,10 +22,9 @@ class App(models.Model):
     note = models.CharField(max_length=255)
     comment = models.CharField(max_length=255, blank=True, null=True)
     creation_date = models.DateTimeField()
-    approved = models.BooleanField(default=True)
     device_type = models.CharField(choices=APP_TYPE_CHOICES, default="IOS", max_length=255)
     uuid = models.CharField(max_length=255, blank=True, null=True, unique=True)
-    tags = models.ManyToManyField('Tag')
+    tags = models.ManyToManyField('Tag', related_name='apps')
 
 class Tag(models.Model):
 
