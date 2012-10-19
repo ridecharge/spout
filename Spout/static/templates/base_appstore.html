@@ -99,12 +99,12 @@
                 clear: left;
             }
 
-            
+            .product-names {
+            } 
             .tag {
                 background-color: #F1A42C;
-                display: block;
+                display: inline-block;
                 clear: both;
-                height: 140px;
                 margin: 5 5 0 0;
                 padding: 10 10 0 10;
                 border-width: 1px 0px;
@@ -116,7 +116,7 @@
                 float: left;
                 font-family: 'ABeeZee' sans-serif;
                 font-size: 1.4em;
-                width: 50%;
+                width: 100%;
             }
 
             .tag-view-all {
@@ -125,6 +125,8 @@
 
             .app-information {
                 clear: both;
+                border-top: 1px solid black;
+                padding: 5px 0px;
             }
 
 
@@ -139,9 +141,11 @@
         }
 
         #app-refdate {
-            float: right;
-            width: 50%;
-            text-align: right;
+            float: left;
+            width: 100%;
+
+            font-family: 'ABeeZee' sans-serif;
+            text-align: left;
         }
 
         #app-name {
@@ -151,7 +155,9 @@
         #app-note { 
             float: none;
             clear: both;
-            padding: 0 0 0 10px;
+            padding: 5 0 0 0;
+            font-family: "Helvetica Neue";
+            font-size: 0.8em;
         }
 
         .left-app-details {
@@ -160,6 +166,7 @@
         }
 
         .right-app-details {
+            padding: 0 0 10px 0;
             width: 70%;
             float: right;
         }
@@ -221,15 +228,11 @@
                                         <div class="left-app-details">
                                             <a id="app-itms-url">
                                                 <img id="app-icon" width='55' height='55'></a><br>
-                                            <div id="app-name" class="span6">
-                                               &nbsp;
-                                            </div>
                                             <div id="app-version" class="span4" align="center">
                                                &nbsp;
                                             </div>
                                         </div>
                                         <div class="right-app-details">
-                                                                                        Note:
                                             <div id="app-note" class="row-fluid">
                                             </div>
                                         </div>

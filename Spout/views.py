@@ -187,11 +187,17 @@ def filtered_tags(request):
         
         products_apps = App.objects.filter(product__name=request.GET['product'])
         tagset_pk = set()
-        [[tagset_pk.add(y.pk) for y in x.tags.all()] for x in products_apps]
-        tags = [tag.name for tag in Tag.objects.filter(pk__in=tagset_pk)]
+
+        tagset = [dict({'tag': t.name, 'date': t.apps.latest("creation_date").creation_date}) for t in Tag.objects.all() if t.apps.count()]
+        tagset.sort(key=lambda(d): d['date'], reverse=True)
+      
+        tags = [tag['tag'] for tag in tagset]
+
 
         tag_dict = dict({ 'tags':
                     tags })
+
+        print len(tags)
 
         json_string = json.dumps(tag_dict)
 
