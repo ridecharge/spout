@@ -144,7 +144,7 @@ def filtered_apps(request):
     return_many = True
 
     if 'device_type' in request_keys:
-        apps = apps.filter(device_type=request.GET['device_type'])
+        apps = apps.filter(device_type=request.GET['device_type'].upper())
 
     if 'product' in request_keys:
         product = Product.objects.get(name=request.GET['product'])
@@ -184,24 +184,33 @@ def filtered_tags(request):
     tags = Tag.objects
 
     if 'product' in request_keys:
-        
-        products_apps = App.objects.filter(product__name=request.GET['product'])
-        tagset_pk = set()
+        tags = tags.filter(apps__product__name=request.GET['product'])
+    if 'device_type' in request_keys:
+        tags = tags.filter(apps__device_type=request.GET['device_type'].upper())
 
-        tagset = [dict({'tag': t.name, 'date': t.apps.filter(product__name=request.GET['product']).latest("creation_date").creation_date}) for t in Tag.objects.all() if t.apps.count()]
-        tagset.sort(key=lambda(d): d['date'], reverse=True)
-      
-        tags = [tag['tag'] for tag in tagset]
+    def filter_t(t):
+        apps = t.apps.all()
+        if 'product' in request_keys:
+            apps = apps.filter(product__name=request.GET['product'])
+        if 'device_type' in request_keys:
+            apps = apps.filter(device_type=request.GET['device_type'].upper())
+        return apps
 
+    
+    tagset = [dict({'tag': t.name, 'date': filter_t(t).latest("creation_date").creation_date}) for t in tags.all().distinct() if filter_t(t).count()]
+    tagset.sort(key=lambda(d): d['date'], reverse=True)
 
-        tag_dict = dict({ 'tags':
-                    tags })
+    print tagset
 
-        print len(tags)
+  
+    tags = [tag['tag'] for tag in tagset]
 
-        json_string = json.dumps(tag_dict)
+    tag_dict = dict({ 'tags':
+                tags })
 
-        return HttpResponse(content=json_string, mimetype="application/json")
+    json_string = json.dumps(tag_dict)
+
+    return HttpResponse(content=json_string, mimetype="application/json")
    
 def apps(request):
 

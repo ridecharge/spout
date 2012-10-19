@@ -6,12 +6,11 @@ from os import remove
 
 import utils
 
-
-class App(models.Model):
-
-    APP_TYPE_CHOICES = (("ANDROID", "Android"),
+APP_TYPE_CHOICES = (("ANDROID", "Android"),
                     ("IOS", "iOS"),
                     ("BLACKBERRY", "BlackBerry"))
+
+class App(models.Model):
 
     def __unicode__(self):
         return "%s - %s" % (self.name, self.version)
