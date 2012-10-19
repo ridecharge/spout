@@ -188,7 +188,7 @@ def filtered_tags(request):
         products_apps = App.objects.filter(product__name=request.GET['product'])
         tagset_pk = set()
 
-        tagset = [dict({'tag': t.name, 'date': t.apps.latest("creation_date").creation_date}) for t in Tag.objects.all() if t.apps.count()]
+        tagset = [dict({'tag': t.name, 'date': t.apps.filter(product__name=request.GET['product']).latest("creation_date").creation_date}) for t in Tag.objects.all() if t.apps.count()]
         tagset.sort(key=lambda(d): d['date'], reverse=True)
       
         tags = [tag['tag'] for tag in tagset]
