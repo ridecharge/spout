@@ -48,7 +48,7 @@ def save_uploaded_ipa(the_ipa):
     app_name = ipa_plist['CFBundleDisplayName']
     app_name = app_name_from_filelist(ipa_file.filelist)
 
-    app_binary_location = ipa_file.extract("Payload/%s.app/%s" % (ipa_plist['CFBundleName'], ipa_plist['CFBundleExecutable']), path=temp_dir)
+    app_binary_location = ipa_file.extract("Payload/%s.app/%s" % (app_name, ipa_plist['CFBundleExecutable']), path=temp_dir)
 
     dump_handle = os.popen("dwarfdump --uuid %s" % app_binary_location)
     uuid = dump_handle.read().split(' ')[1]
@@ -77,7 +77,7 @@ def save_uploaded_ipa(the_ipa):
 
     ipa_file.close()
 
-    app_info = dict({'version': version, 'app_name': app_name, 'uuid': uuid })
+    app_info = dict({'version': version, 'app_name': ipa_plist['CFBundleName'], 'uuid': uuid })
     return app_info
 
 
