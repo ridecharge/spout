@@ -1,9 +1,16 @@
 import biplist
 import os
+import re
 import shutil
 from datetime import datetime
 from zipfile import ZipFile
 from tempfile import mkdtemp, mkstemp
+from androguard.core import androconf
+from androguard.core.bytecodes import apk
+from elementtree.ElementTree import Element, parse
+from xml.dom import minidom
+from md5 import md5
+
 from Spout.models import *
 from Spout import settings
 
@@ -12,9 +19,10 @@ version_key = "version"
 product_key = "product"
 package_type_key = "file_type"
 
+
+dsym_key = "dsym_file"
 #from PackageHandlers import *
 
-package_handlers = dict({ 'IOS' : iOSHandler, 'ANDROID' : AndroidHandler })
 
 def save_uploaded_file_to_temp(file_from_form):
 
@@ -35,12 +43,12 @@ class BuildUploadRequestHandler:
 
         self.app_package = request.FILES[package_key]
 
-        self.version = request.POST[version_key]
         self.product_id = request.POST[product_key]
         self.package_type = request.POST[package_type_key]
 
         self.uploaded_files = request.FILES
         self.post_data = request.POST
+        self.request = request
 
     def validate(self, post_form):
 
@@ -49,25 +57,93 @@ class BuildUploadRequestHandler:
     
     def process_upload(self):
 
-        handler = package_handlers[self.package_type].__init__()
+        handler = package_handlers[self.package_type]
+        handler = handler(self.request)
+
         handler.handle_package()
 
 
-class iOSHandler:
+class BaseHandler(object):
+    
+    def __init__(self, request):
+        self.request = request
+        self.temp_dir = mkdtemp()
 
-    dsym_key = "dsym_file"
+class AndroidHandler(BaseHandler):
+
+    def __init__(self, request):
+        super(AndroidHandler, self).__init__(request)
+
+        if request.method == 'POST':
+
+            self.temp_apk_path = save_uploaded_file_to_temp(request.FILES[package_key])
+
+            a = apk.APK(self.temp_apk_path)
+
+            self.uuid = md5(a.get_dex()).hexdigest()
+            self.name = a.package
+            self.version = a.get_androidversion_name()
+
+            self.note = request.POST['note']
+            self.product = request.POST['product']
+
+
+    def handle_package(self):
+
+        self.save_icon_files()
+        self.save_apk()
+
+        creation_date = datetime.now()
+        product = Product.objects.get(pk=self.product)
+
+        app = App(version=self.version, note=self.note, name=self.name, product=product, creation_date=creation_date, uuid=self.uuid)
+
+        app.save()
+
+    def save_icon_files(self):
+
+        temp_decoded = "%s/app" % self.temp_dir
+
+        os.system("%s/apktool d %s %s" % (settings.UTILITIES_ROOT, self.temp_apk_path, temp_decoded))
+
+        xml = minidom.parse("%s/AndroidManifest.xml" % temp_decoded)
+        application_node = xml.getElementsByTagName("application")[0]
+
+        icon_from_xml = application_node.attributes['android:icon'].value
+        icon_from_xml = icon_from_xml.replace("@", "")
+
+        resource_dir = "%s/res" % temp_decoded
+        matching_dirs = ["%s/%s" % (resource_dir, x) for x in os.listdir(resource_dir) if re.match(icon_from_xml.split("/")[0], x)]
+
+        for d in matching_dirs:
+
+            matching_files = ["%s/%s/%s" % (resource_dir, d, x) for x in os.listdir(d) if re.match("%s.png" % icon_from_xml.split("/")[-1], x)]
+
+            if len(matching_files) > 1:
+                
+                [shutil.move(the_file, "%s/%s.png" % (settings.MEDIA_ROOT, self.uuid)) for the_file in matching_files]
+
+    def save_apk(self):
+
+        shutil.move(self.temp_apk_path, "%s/%s.apk" % (settings.MEDIA_ROOT, self.uuid))
+
+
+class iOSHandler(BaseHandler):
+
 
     def __init__(self, request):
 
-        self.request = request
+        super(iOSHandler, self).__init__(self, request)
+
         if request.method == 'POST':
 
             temp_ipa_path = save_uploaded_file_to_temp(request.FILES[package_key])
             
             self.ipa_file = ZipFile(temp_ipa_path)
-            self.dsym = request.FILES[dsym_key]
+            if dsym_key in request.FILES:
+                self.dsym = request.FILES[dsym_key]
             self.ipa_plist = self.plist_from_ipa()
-            self.temp_dir = mkdtemp()
+            self.uuid = self.extract_uuid()
 
     def handle_package(self):
 
@@ -77,40 +153,36 @@ class iOSHandler:
         version = self.ipa_plist['CFBundleVersion']
         note = self.request.POST['note'] 
         name = self.ipa_plist['CFBundleName']
-        product = self.POST['product']
+        product = Product.objects.get(pk=self.request.POST['product'])
         creation_date = datetime.now()
-        uuid = self.extract_uuid()
 
         tag = None
 
-            if "tag" in self.request.POST.keys():
-                tag_name = request.POST['tag']
+        app = App(version=version, note=note, name=name, product=product, creation_date=creation_date, uuid=self.uuid)
 
-                try:
-                    tag = Tag.objects.get(name__iexact=tag_name)
-                except Tag.DoesNotExist:
-                    tag = Tag(name=tag_name, description="Branch %s" % tag_name)
-                    tag.save()
+        if "tag" in self.request.POST.keys():
+            tag_name = request.POST['tag']
 
-            app.save()
-            if tag: 
-                app.tags.add(tag)
-                app.save()
-
-        app = App(version=version, note=note, name=name, product=product, creation_date=creation_date, uuid=uuid)
+            try:
+                tag = Tag.objects.get(name__iexact=tag_name)
+            except Tag.DoesNotExist:
+                tag = Tag(name=tag_name, description="Branch %s" % tag_name)
+                tag.save()
 
         app.save()
+        if tag: 
+            app.tags.add(tag)
+            app.save()
 
-        
-    def ipa_path(uuid):
+    def ipa_path(self):
 
-        path = "%s/%s.ipa" % (settings.MEDIA_ROOT, uuid)
+        path = "%s/%s.ipa" % (settings.MEDIA_ROOT, self.uuid)
         return path
 
-    def save_uploaded_dsym(the_dsym, uuid):
+    def save_uploaded_dsym(self):
 
-        temp_dsym_path = save_uploaded_file_to_temp(the_dsym)
-        new_dsym_location = dsym_path(uuid)
+        temp_dsym_path = save_uploaded_file_to_temp(self.dsym)
+        new_dsym_location = dsym_path(self.uuid)
         shutil.move(temp_dsym_path, new_dsym_location)
 
     def extract_app_name(self): 
@@ -124,7 +196,7 @@ class iOSHandler:
     def extract_uuid(self):
 
         app_name = self.extract_app_name()
-        app_binary_location = self.ipa_file.extract("Payload/%s.app/%s" % (app_name, ipa_plist['CFBundleExecutable']), path=temp_dir)
+        app_binary_location = self.ipa_file.extract("Payload/%s.app/%s" % (app_name, self.ipa_plist['CFBundleExecutable']), path=self.temp_dir)
         dump_handle = os.popen("dwarfdump --uuid %s" % app_binary_location)
         uuid = dump_handle.read().split(' ')[1]
         dump_handle.close()
@@ -134,7 +206,7 @@ class iOSHandler:
     def save_icon_files(self):
 
         if 'CFBundleIconFiles' in self.ipa_plist.keys():
-            icons = ipa_plist['CFBundleIconFiles']
+            icons = self.ipa_plist['CFBundleIconFiles']
             if len(icons) > 0:
 
                 hires_search_pattern = re.compile(".*@2x.png")
@@ -147,19 +219,18 @@ class iOSHandler:
                 icon_path = [f.filename for f in self.ipa_file.filelist if icon_search_pattern.match(f.filename)][0] 
                 extracted_icon_path = self.ipa_file.extract(icon_path, path=self.temp_dir)
                 print extracted_icon_path
-                shutil.move(extracted_icon_path, "%s/%s.png" % (settings.MEDIA_ROOT, uuid))
+                shutil.move(extracted_icon_path, "%s/%s.png" % (settings.MEDIA_ROOT, self.uuid))
 
     def save_ipa(self):
 
-        new_ipa_location = self.ipa_path(self.uuid)
+        new_ipa_location = self.ipa_path()
+        temp_ipa_path = save_uploaded_file_to_temp(self.request.FILES[package_key])
         shutil.move(temp_ipa_path, new_ipa_location)
 
     def plist_from_ipa(self):
 
-        ipa_contents = self.ipa_file.filelist
-        app_name = app_name_from_filelist(ipa_contents)
-        temp_dir = mkdtemp()
-        plist_dict_path = self.ipa_file.extract("Payload/" + app_name + ".app/" + "Info.plist", path=temp_dir)
+        app_name = self.extract_app_name()
+        plist_dict_path = self.ipa_file.extract("Payload/" + app_name + ".app/" + "Info.plist", path=self.temp_dir)
 
         parsed_dict = biplist.readPlist(plist_dict_path)
         copied_dict = dict(parsed_dict)
@@ -212,3 +283,5 @@ class iOSHandler:
         symd_crash = open(temp_symd, "r")
 
         return (symd_crash, temp_symd)
+
+package_handlers = dict({ 'IOS' : iOSHandler, 'ANDROID' : AndroidHandler })

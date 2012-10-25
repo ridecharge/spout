@@ -13,7 +13,7 @@ import json
 import time
 import re
 
-import utils
+from UploadHandlers import BuildUploadRequestHandler
 from Spout.models import *
 from Spout import forms
 
@@ -28,32 +28,8 @@ def upload_build(request):
         if form.is_valid():
 
 
-            filename = request.FILES['ipa_file'].name
-            filename_list = filename.split('.')
-            filename_list = filename_list[0:-1]
-            filename = ".".join(filename_list)
-
-            app_info = utils.save_uploaded_ipa(request.FILES['ipa_file'])
-            if 'dsym_file' in request.FILES.keys():
-                utils.save_uploaded_dsym(request.FILES['dsym_file'], app_info['uuid'])
-            print app_info
-            app = App(version=app_info['version'], note=form.cleaned_data['note'], name=app_info['app_name'], product=form.cleaned_data['product'], creation_date=datetime.now(), uuid=app_info['uuid'])
-
-            tag = None
-
-            if "tag" in request.POST.keys():
-                tag_name = request.POST['tag']
-
-                try:
-                    tag = Tag.objects.get(name__iexact=tag_name)
-                except Tag.DoesNotExist:
-                    tag = Tag(name=tag_name, description="Branch %s" % tag_name)
-                    tag.save()
-
-            app.save()
-            if tag: 
-                app.tags.add(tag)
-                app.save()
+            handler = BuildUploadRequestHandler(request)
+            handler.process_upload()
 
             ret_val = HttpResponseRedirect("/apps/list")
         else:
