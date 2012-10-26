@@ -4,7 +4,6 @@ from django.db.models.signals import pre_delete
 
 from os import remove
 
-import utils
 
 APP_TYPE_CHOICES = (("ANDROID", "Android"),
                     ("IOS", "iOS"),
