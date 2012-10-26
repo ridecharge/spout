@@ -70,7 +70,7 @@
                                 $.getJSON(appFilterPath, '', function(data) {
                                     console.log(data);
                                     var app = data['apps'];
-                                    $tagRow.find("#app-itms-url").attr("href", itmsUrlGenerator(app['uuid']));
+                                    $tagRow.find("#app-itms-url").attr("href", app['url']);
                                     $tagRow.find("#app-icon").attr("src", appIconHrefGenerator(app['uuid']));
                                     $tagRow.find("#app-name").text(app['name']);
                                     $tagRow.find("#app-version").text(app['version']);

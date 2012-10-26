@@ -45,9 +45,7 @@ class Crash(models.Model):
     body = models.TextField()
 
 def delete_app(sender, instance, signal, *args, **kwargs):
-
-    app_file = utils.ipa_path(instance.uuid)
-    print app_file
+    app_file = "%s/%s.ipa" % (settings.MEDIA_ROOT, instance.uuid)
     try:
         remove(app_file)
     except OSError:

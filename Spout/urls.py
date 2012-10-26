@@ -27,11 +27,10 @@ urlpatterns = patterns('Spout.views',
      url(r'tags/filter', 'filtered_tags'),
 
      url(r'^apps/list', 'apps'), 
-     url(r'^apps/plist/(?P<uuid>%s)' % uuid_regex, 'get_plist'),
      url(r'^apps/tag/(?P<tag_name>%s)' % tag_regex , 'tagged_apps'),
-     url(r'^apps/ipa/(?P<uuid>%s).ipa' % uuid_regex, 'get_ipa'),
-     url(r'^apps/dsym/(?P<uuid>%s).dSYM.zip' % uuid_regex, 'get_dsym'),
      url(r'^apps/filter', 'filtered_apps'),
+
+     url(r'^app/(?P<uuid>%s).(?P<extension>\w+)' % uuid_regex, 'get_package'),
 
      url(r'^app/(?P<app_id>\w+)/tag/(?P<tag_name>%s)' % tag_regex, 'toggle_tag'),
      url(r'^app/(?P<app_id>\w+)/tag/(?P<tag_name>\w+)', 'toggle_tag'),

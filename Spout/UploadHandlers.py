@@ -37,17 +37,11 @@ def save_uploaded_file_to_temp(file_from_form):
 
 
 
-class BuildUploadRequestHandler:
+class UploadRequestHandler:
 
     def __init__(self, request):
 
-        self.app_package = request.FILES[package_key]
-
-        self.product_id = request.POST[product_key]
         self.package_type = request.POST[package_type_key]
-
-        self.uploaded_files = request.FILES
-        self.post_data = request.POST
         self.request = request
 
     def validate(self, post_form):
@@ -69,23 +63,22 @@ class BaseHandler(object):
         self.request = request
         self.temp_dir = mkdtemp()
 
-class AndroidHandler(BaseHandler):
+class AndroidPackageHandler(BaseHandler):
 
     def __init__(self, request):
-        super(AndroidHandler, self).__init__(request)
+        super(AndroidPackageHandler, self).__init__(request)
 
-        if request.method == 'POST':
 
-            self.temp_apk_path = save_uploaded_file_to_temp(request.FILES[package_key])
+        self.temp_apk_path = save_uploaded_file_to_temp(request.FILES[package_key])
 
-            a = apk.APK(self.temp_apk_path)
+        a = apk.APK(self.temp_apk_path)
+        md5_raw = x = md5(a.get_dex()).hexdigest().upper()
+        self.uuid = "%s-%s-%s-%s-%s" % (x[0:8], x[8:12], x[12:16], x[16:20], x[20:32]) 
+        self.name = a.package
+        self.version = a.get_androidversion_name()
 
-            self.uuid = md5(a.get_dex()).hexdigest()
-            self.name = a.package
-            self.version = a.get_androidversion_name()
-
-            self.note = request.POST['note']
-            self.product = request.POST['product']
+        self.note = request.POST['note']
+        self.product = request.POST['product']
 
 
     def handle_package(self):
@@ -95,8 +88,9 @@ class AndroidHandler(BaseHandler):
 
         creation_date = datetime.now()
         product = Product.objects.get(pk=self.product)
+        device_type = self.request.POST[package_type_key]
 
-        app = App(version=self.version, note=self.note, name=self.name, product=product, creation_date=creation_date, uuid=self.uuid)
+        app = App(version=self.version, note=self.note, name=self.name, product=product, creation_date=creation_date, uuid=self.uuid, device_type=device_type)
 
         app.save()
 
@@ -117,10 +111,11 @@ class AndroidHandler(BaseHandler):
 
         for d in matching_dirs:
 
-            matching_files = ["%s/%s/%s" % (resource_dir, d, x) for x in os.listdir(d) if re.match("%s.png" % icon_from_xml.split("/")[-1], x)]
+            matching_files = ["%s/%s" % (d, x) for x in os.listdir(d) if re.match("%s.png" % icon_from_xml.split("/")[-1], x)]
 
-            if len(matching_files) > 1:
+            if len(matching_files) > 0:
                 
+                print "".join(matching_files) + "XXXXX"
                 [shutil.move(the_file, "%s/%s.png" % (settings.MEDIA_ROOT, self.uuid)) for the_file in matching_files]
 
     def save_apk(self):
@@ -128,22 +123,28 @@ class AndroidHandler(BaseHandler):
         shutil.move(self.temp_apk_path, "%s/%s.apk" % (settings.MEDIA_ROOT, self.uuid))
 
 
-class iOSHandler(BaseHandler):
+class iOSPackageHandler(BaseHandler):
 
 
     def __init__(self, request):
 
-        super(iOSHandler, self).__init__(self, request)
+        super(iOSPackageHandler, self).__init__(self, request)
 
-        if request.method == 'POST':
+        temp_ipa_path = save_uploaded_file_to_temp(request.FILES[package_key])
+        
+        self.ipa_file = ZipFile(temp_ipa_path)
+        if dsym_key in request.FILES:
+            self.dsym = request.FILES[dsym_key]
+        self.ipa_plist = self.plist_from_ipa()
+        self.uuid = self.extract_uuid()
 
-            temp_ipa_path = save_uploaded_file_to_temp(request.FILES[package_key])
-            
-            self.ipa_file = ZipFile(temp_ipa_path)
-            if dsym_key in request.FILES:
-                self.dsym = request.FILES[dsym_key]
-            self.ipa_plist = self.plist_from_ipa()
-            self.uuid = self.extract_uuid()
+
+    def respond(self):
+
+        self.handle_package()
+        ret_val = HttpResponseRedirect("/apps/list")
+
+        return ret_val
 
     def handle_package(self):
 
@@ -153,12 +154,13 @@ class iOSHandler(BaseHandler):
         version = self.ipa_plist['CFBundleVersion']
         note = self.request.POST['note'] 
         name = self.ipa_plist['CFBundleName']
+        device_type = self.request.POST[package_type_key]
         product = Product.objects.get(pk=self.request.POST['product'])
         creation_date = datetime.now()
 
         tag = None
 
-        app = App(version=version, note=note, name=name, product=product, creation_date=creation_date, uuid=self.uuid)
+        app = App(version=version, note=note, name=name, product=product, creation_date=creation_date, uuid=self.uuid, device_type=device_type)
 
         if "tag" in self.request.POST.keys():
             tag_name = request.POST['tag']
@@ -284,4 +286,4 @@ class iOSHandler(BaseHandler):
 
         return (symd_crash, temp_symd)
 
-package_handlers = dict({ 'IOS' : iOSHandler, 'ANDROID' : AndroidHandler })
+package_handlers = dict({ 'IOS' : iOSPackageHandler, 'ANDROID' : AndroidPackageHandler })

@@ -5,6 +5,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.db import IntegrityError
 from django.template import RequestContext, Context, Template
 
+
 from datetime import datetime
 from zipfile import ZipFile
 import tempfile
@@ -13,7 +14,9 @@ import json
 import time
 import re
 
-from UploadHandlers import BuildUploadRequestHandler
+from UploadHandlers import UploadRequestHandler
+from GetRequestHandlers import GetRequestHandler
+from  urlFactory import UrlFactory
 from Spout.models import *
 from Spout import forms
 
@@ -28,7 +31,7 @@ def upload_build(request):
         if form.is_valid():
 
 
-            handler = BuildUploadRequestHandler(request)
+            handler = UploadRequestHandler(request)
             handler.process_upload()
 
             ret_val = HttpResponseRedirect("/apps/list")
@@ -133,9 +136,12 @@ def filtered_apps(request):
         apps = [apps.latest('creation_date')]
         return_many = False
 
+    url_factory = UrlFactory(request)
+
     hdate = lambda(d): Template("{% load humanize %} {{ date|timesince }}").render(Context({'date': d})).lstrip()
     formdict = lambda(a): dict({'uuid' : a.uuid,
                              'refdate' : hdate(a.creation_date),
+                             'url'     : url_factory.package_url(a),
                                 'name' : a.name,
                                 'version' : a.version,
                                 'comment' : a.comment,
@@ -206,23 +212,6 @@ def apps(request):
         'auth': auth,
         'tags': tags},
         context_instance=RequestContext(request))
-
-def get_plist(request, uuid):
-    theZip = ZipFile(utils.ipa_path(uuid))
-    parsed_dict = utils.plist_from_ipa(theZip)
-
-    url = "http://%s/apps/ipa/%s.ipa" % (request.get_host(), uuid) 
-    bundle_id = parsed_dict['CFBundleIdentifier']
-    bundle_version = parsed_dict['CFBundleVersion']
-    app_title = parsed_dict['CFBundleName']
-
-    template = "generic_enterprise_manifest.plist"
-    theZip.close()
-    return render_to_response(template, {"app_url": url,
-                                "bundle_identifier": bundle_id,
-                                   "bundle_version": bundle_version,
-                                        "app_title": app_title})
-
 def tagged_apps(request, tag_name):
 
 
@@ -303,15 +292,9 @@ def all_tags(request):
 
     return HttpResponse(content=json_string, mimetype="application/json")
 
-def get_ipa(request, uuid):
+def get_package(request, uuid, extension):
 
-    app = open(utils.ipa_path(uuid), "r")
-    
-    return HttpResponse(app, mimetype="application/octet-stream")
 
-def get_dsym(request, uuid):
-
-    app_file = open(utils.dsym_path(uuid), "r")
-
-    return HttpResponse(app_file, mimetype="application/octet-stream")
+    handler = GetRequestHandler(request).handler()
+    return handler.respond()
 
