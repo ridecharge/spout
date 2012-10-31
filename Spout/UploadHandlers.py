@@ -83,7 +83,7 @@ class AndroidPackageHandler(BaseHandler):
 
     def handle_package(self):
 
-        self.save_icon_files()
+        #self.save_icon_files()
         self.save_apk()
 
         creation_date = datetime.now()
@@ -128,7 +128,7 @@ class iOSPackageHandler(BaseHandler):
 
     def __init__(self, request):
 
-        super(iOSPackageHandler, self).__init__(self, request)
+        super(iOSPackageHandler, self).__init__(request)
 
         temp_ipa_path = save_uploaded_file_to_temp(request.FILES[package_key])
         
@@ -163,7 +163,7 @@ class iOSPackageHandler(BaseHandler):
         app = App(version=version, note=note, name=name, product=product, creation_date=creation_date, uuid=self.uuid, device_type=device_type)
 
         if "tag" in self.request.POST.keys():
-            tag_name = request.POST['tag']
+            tag_name = self.request.POST['tag']
 
             try:
                 tag = Tag.objects.get(name__iexact=tag_name)
