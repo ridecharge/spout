@@ -62,6 +62,7 @@ class BaseHandler(object):
     def __init__(self, request):
         self.request = request
         self.temp_dir = mkdtemp()
+        self.product = Product.objects.get(name__iexact=request.POST['product'])
 
 class AndroidPackageHandler(BaseHandler):
 
@@ -78,7 +79,6 @@ class AndroidPackageHandler(BaseHandler):
         self.version = a.get_androidversion_name()
 
         self.note = request.POST['note']
-        self.product = request.POST['product']
 
 
     def handle_package(self):
@@ -87,10 +87,9 @@ class AndroidPackageHandler(BaseHandler):
         self.save_apk()
 
         creation_date = datetime.now()
-        product = Product.objects.get(pk=self.product)
-        device_type = self.request.POST[package_type_key]
+        device_type = self.request.POST[package_type_key].upper()
 
-        app = App(version=self.version, note=self.note, name=self.name, product=product, creation_date=creation_date, uuid=self.uuid, device_type=device_type)
+        app = App(version=self.version, note=self.note, name=self.name, product=self.product, creation_date=creation_date, uuid=self.uuid, device_type=device_type)
 
         app.save()
 
@@ -155,12 +154,12 @@ class iOSPackageHandler(BaseHandler):
         note = self.request.POST['note'] 
         name = self.ipa_plist['CFBundleName']
         device_type = self.request.POST[package_type_key]
-        product = Product.objects.get(pk=self.request.POST['product'])
+
         creation_date = datetime.now()
 
         tag = None
 
-        app = App(version=version, note=note, name=name, product=product, creation_date=creation_date, uuid=self.uuid, device_type=device_type)
+        app = App(version=version, note=note, name=name, product=self.product, creation_date=creation_date, uuid=self.uuid, device_type=device_type)
 
         if "tag" in self.request.POST.keys():
             tag_name = self.request.POST['tag']
