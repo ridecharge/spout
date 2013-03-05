@@ -184,8 +184,6 @@ class iOSPackageHandler(BaseHandler):
     def save_uploaded_dsym(self):
 
         temp_dsym_path = save_uploaded_file_to_temp(self.dsym)
-        new_dsym_location = dsym_path(self.uuid)
-        shutil.move(temp_dsym_path, new_dsym_location)
         shutil.move(temp_dsym_path, "%s/%s.dSYM.zip" % (settings.MEDIA_ROOT, self.uuid))
 
 
