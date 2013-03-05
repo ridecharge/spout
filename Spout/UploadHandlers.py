@@ -149,6 +149,7 @@ class iOSPackageHandler(BaseHandler):
 
         self.save_ipa()
         self.save_icon_files()
+        self.save_uploaded_dsym()
 
         version = self.ipa_plist['CFBundleVersion']
         note = self.request.POST['note'] 
@@ -185,6 +186,8 @@ class iOSPackageHandler(BaseHandler):
         temp_dsym_path = save_uploaded_file_to_temp(self.dsym)
         new_dsym_location = dsym_path(self.uuid)
         shutil.move(temp_dsym_path, new_dsym_location)
+        shutil.move(temp_dsym_path, "%s/%s.dSYM.zip" % (settings.MEDIA_ROOT, self.uuid))
+
 
     def extract_app_name(self): 
 
