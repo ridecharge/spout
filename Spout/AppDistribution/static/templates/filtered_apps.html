@@ -1,0 +1,37 @@
+{% extends 'base_appstore.html' %}
+
+{% block entries %}
+
+                    <ul class="product-names">
+                    {% for tag in tag_info %}
+                        <li class="product-name-li">
+                        <div class="product-row">
+                           <div class="product-details">
+                                <a href="/app/asset/{{ tag.app.uuid }}">
+                                    <img class="product-icon" src="{{ tag.app.icon_url }}" width=44 height=44>
+                                </a>
+                                {{ tag.name }} 
+     
+
+                                {% if row.show_age %}<br>
+                                <div class="app-refdate">
+                                {{ row.app.formatted_age }}
+                                </div>
+                                    {% endif %}
+
+                                <div class="more-info-button">
+                                    {% if row.show_more_versions %}
+                                    <a class="product-plus-button" id="{{ row.product.id }}">[More Info]</a> 
+                                    {% endif %}
+                                </div>
+
+                            </div>
+                            <div class="product-install-button">
+                                <a href="/app/asset/{{ row.app.uuid }}">INSTALL</a>
+                            </div>
+ 
+                        </div>
+                            </li>
+                    {% endfor %}
+                    </ul>
+{% endblock %}

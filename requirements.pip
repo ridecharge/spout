@@ -1,0 +1,23 @@
+https://www.djangoproject.com/download/1.5a1/tarball/#egg=django
+Fabric==1.5.1
+GitPython==0.3.2.RC1
+Pillow==1.7.8
+Pygments==1.5
+South==0.7.6
+http://androguard.googlecode.com/files/androguard-1.9.tar.gz#egg=androguard
+async==0.6.1
+biplist==0.5
+bpython==0.11
+distribute==0.6.30
+django-tinymce==1.5.1b2
+-e git+https://github.com/pydanny/django-wysiwyg.git@5d372b8b7828a02f63b2d2b00831003d972024f1#egg=django_wysiwyg-dev
+elementtree==1.2.7-20070827-preview
+gitdb==0.5.4
+gunicorn==0.16.1
+paramiko==1.9.0
+psycopg2==2.4.6
+pycrypto==2.6
+pypng==0.0.13
+six==1.2.0
+smmap==0.8.2
+wsgiref==0.1.2

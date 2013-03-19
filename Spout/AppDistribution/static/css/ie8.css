@@ -1,0 +1,115 @@
+/*********************************************************************************/
+/* Basic                                                                         */
+/*********************************************************************************/
+
+	hr
+	{
+		border-top: dotted 1px #bfbfbf;
+	}
+	
+		hr.single
+		{
+			border: 0;
+			border-top: dotted 1px #bfbfbf;
+		}
+
+		hr.double
+		{
+			border-top: dotted 1px #bfbfbf;
+			border-bottom: dotted 1px #bfbfbf;
+		}
+
+	.image
+	{
+		border: dotted 1px #bfbfbf;
+	}
+
+	ol.style1
+	{
+	}
+
+		ol.style1 li:before
+		{
+			top: 0;
+			margin-right: 0.75em;
+		}
+
+	ul.style1, ul.style1-dates
+	{
+	}
+
+		ul.style1 li, ul.style1-dates li
+		{
+			border-top: dotted 1px #bfbfbf;
+		}
+
+	ul.style2
+	{
+	}
+
+		ul.style2 li
+		{
+			border-top: dotted 1px #bfbfbf;
+		}
+		
+/*********************************************************************************/
+/* Boxes                                                                         */
+/*********************************************************************************/
+
+	.box-titled
+	{
+		border: dotted 1px #bfbfbf;
+	}
+	
+	.box-cta
+	{
+	}
+	
+		.box-cta .inner
+		{
+			border: dotted 1px #bfbfbf;
+		}
+		
+/*********************************************************************************/
+/* Wrappers                                                                      */
+/*********************************************************************************/
+
+	#header-wrapper
+	{
+	}
+	
+		#header-wrapper hr.single
+		{
+			border-top: dotted 1px #9abedb;
+		}
+
+		#header-wrapper:after
+		{
+			left: 0;
+			margin-left: 0;
+			width: 100%;
+		}
+
+	#main-wrapper
+	{
+		border-top: solid 1px #fff;
+		border-bottom: solid 1px #fff;
+	}
+		
+/*********************************************************************************/
+/* Dropotron                                                                     */
+/*********************************************************************************/
+
+	.dropotron
+	{
+	}
+	
+		.dropotron a, .dropotron span
+		{
+			color: #c8c8c8;
+		}
+		
+		.dropotron li:hover > a, .dropotron li:hover > span
+		{
+			color: #fff;
+		}

@@ -1,0 +1,54 @@
+{% extends 'base_template.html' %}
+
+                                {% block main %}
+		<!-- Main -->
+			<div id="main-wrapper">
+				<div class="5grid-layout">
+                    <div class="row" id="features">
+                        <div class="10u offset-1u">
+                            <section class="box-titled box-about">
+                                {% if page.heading %}
+                                <header>
+                                <h2>{{ page.heading }}</h2>
+                                </header>
+                                {% endif %}
+
+                                <ul class="style1">
+                                    {% if page.top_html %}
+                                    {{ page.top_html | safe }}
+                                    {% endif %}
+            
+                                {% for row in page.pagerow_set.all %}
+                                    <li>
+                                    {% if row.app %}
+                                    <div class="product-row" style="display: inline-block; width: 95%" id="{{ row.product.id }}" >
+                                      
+                                       <div class="product-details" style="float: left; display: inline">
+                                            <a href="/app/asset/{{ row.app.uuid }}">
+                                                <img style="width: 44px; height: 44px; margin: 0 10px" src="{{ row.app.icon_url }}" width=44 height=44>
+                                            </a>
+                 
+                                            {{ row }}
+                                            {% if row.show_age %}<br>
+                                            {{ row.app.formatted_age }}
+                                            {% endif %}
+                                        </div>
+                                        <div class="product-install-button" style="float: right; display: inline">
+                                            {% if row.show_more_versions %}
+                                            <a class="product-plus-button" id="{{ row.product.id }}">[More Info]</a> 
+                                            {% endif %}
+                                                    <a href="/app/asset/{{ row.app.uuid }}">INSTALL</a>
+                                        </div>
+             
+                                    </div>
+                                        {% endif %}
+                                    </li>
+                                    {% endfor %}
+                               </ul>
+                            </section>
+                        </div>
+                    </div>
+                </div>
+			</div>
+            {% endblock %}
+					

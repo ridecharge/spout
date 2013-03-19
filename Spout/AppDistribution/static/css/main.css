@@ -1,0 +1,173 @@
+
+    body { 
+        background-color: #31455C;
+    }
+
+    .login-form {
+        max-width: 400px;
+        font-family: 'ABeeZee' sans-serif;
+        text-align: center;
+        background-color: #7EA8DA;
+        margin: 5px;
+        padding: 5px;
+        -webkit-border-radius: 9px;
+    }
+
+   .product-icon {
+       float: left;
+       clear: both;
+       padding-right: 10px;
+   }
+        
+   .product-names {
+        padding: 0px 0px;
+        margin: 0px;
+    }
+
+    .product-name-li {
+        display: block;
+        padding-bottom: 2px;
+    }
+
+    .product-row {
+        height: 60px;
+        background-color:#A6BEDA;
+        margin: 0px;
+        margin-left: 0px;
+        padding: 10px 10px;
+        font-family: 'ABeeZee' sans-serif;
+        font-size: 0.8em;
+        text-align: left;
+        clear: left;
+    }
+
+    .product-install-button {
+        height: 20px;
+        float: right;
+        padding: 9px;
+        width: 15%;
+    }
+
+    .product-name-selected {
+        font-weight: bold;
+        border: 2px solid black;
+    }
+
+    .product-details {
+        float: left;
+        width: 75%;
+    }
+
+    .tag {
+        background-color: #A6BEDA;
+        display: inline-block;
+        clear: both;
+        margin: 5 5 0 0;
+        padding: 0;
+   }
+
+    .tag-title {
+        float: left;
+       width: 100%;
+    }
+
+    .tag-view-all {
+        float: right;
+    }
+
+    .app-information {
+        clear: both;
+        padding: 5px 0px;
+    }
+
+    .app-download-icon {
+        width: 25px;
+        height: 25px;
+        float: left;
+    }
+
+
+    #app-version {
+    width: 55px;
+    }
+
+    .app-refdate {
+    float: left;
+    width: 100%;
+
+    font-family: 'ABeeZee' sans-serif;
+    font-size: 0.7em;
+    text-align: left;
+    }
+
+    #app-name {
+    clear: left;
+    }
+
+    #app-note { 
+    float: none;
+    clear: both;
+    padding: 5 0 0 0;
+    font-family: "Helvetica Neue";
+    font-size: 0.8em;
+    }
+
+    .left-app-details {
+    width: 30%;
+    float: left;
+    }
+
+    .right-app-details {
+    padding: 0 0 10px 0;
+    width: 70%;
+    float: right;
+    }
+
+    .header-html {
+        background-color: #B6C2C2;
+        padding: 12px;
+    }
+
+    .headline {
+        font-size: 2.0em;
+        text-align: center;
+    }
+    
+    .main-container {
+        display: inline-block;
+        position: absolute;
+        left: 35%;
+    }
+
+    @media (max-width:900px) {
+        .main-container {
+            left: 0px;
+            width: 80%;
+        }
+    }
+
+    @media (max-width:500px) {
+
+        .main-container {
+           left: 0px;
+           width: 100%;
+       }
+
+        body {
+            margin: 0px;
+            padding: 0px;
+            width: 100%;
+        }
+
+        .filter {
+            background-color: #BBB3FF;
+        }
+        .details {
+            display: inline;
+        }
+        .hidemobile {
+            display: none;
+            visibility: hidden;
+        }
+    }
+    </style>

@@ -1,0 +1,37 @@
+{% extends 'base_appstore.html' %}
+{% block entries %}
+{% if page.heading %}
+
+<div class="span12 header-html">
+    <p class="headline">{{ page.heading }}</p>
+{% if page.top_html %}
+{{ page.top_html|safe }}
+</div>
+{% endif %}
+
+{% endif %}
+                    {% for row in page.pagerow_set.all %}
+                        {% if row.app %}
+                        <div class="product-row"  id="{{ row.product.id }}">
+                          
+                           <div class="product-details">
+                                <a href="/app/asset/{{ row.app.uuid }}">
+                                    <img class="product-icon" src="{{ row.app.icon_url }}" width=44 height=44>
+                                </a>
+     
+                                {{ row }}
+                                {% if row.show_age %}<br>
+                                {{ row.app.formatted_age }}
+                                {% endif %}
+                            </div>
+                            <div class="product-install-button">
+                                {% if row.show_more_versions %}
+                                <a class="product-plus-button" id="{{ row.product.id }}">[More Info]</a> 
+                                {% endif %}
+                                        <a href="/app/asset/{{ row.app.uuid }}">INSTALL</a>
+                            </div>
+ 
+                        </div>
+                            {% endif %}
+                    {% endfor %}
+{% endblock %} 
