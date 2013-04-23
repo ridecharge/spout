@@ -64,6 +64,23 @@ class BaseUploadHandler(object):
         self.temp_dir = mkdtemp()
         self.product = Product.objects.get(name__iexact=request.POST['product'])
 
+    def add_tag(self, app):
+ 
+        tag = None
+        if "tag" in self.request.POST.keys():
+            tag_name = self.request.POST['tag']
+
+            try:
+                tag = Tag.objects.get(name__iexact=tag_name)
+            except Tag.DoesNotExist:
+                tag = Tag(name=tag_name, description="Branch %s" % tag_name)
+                tag.save()
+
+        if tag: 
+            app.tags.add(tag)
+      
+
+
 class AndroidPackageUploadHandler(BaseUploadHandler):
 
     def __init__(self, request):
@@ -76,10 +93,11 @@ class AndroidPackageUploadHandler(BaseUploadHandler):
     def handle_package(self):
 
         device_type = self.request.POST[package_type_key].upper()
-       
 
         app = App(note=self.note, product=self.product, device_type=device_type)
         app.package = File(open(self.temp_apk_path))
+        app.save()
+        self.add_tag(app)
         app.save()
 
 class iOSPackageUploadHandler(BaseUploadHandler):
@@ -113,18 +131,7 @@ class iOSPackageUploadHandler(BaseUploadHandler):
         app.product = Product.objects.get(name__iexact=self.request.POST['product']) # fetch product by name, case insensitive
         app.save()
 
-        tag = None
-        if "tag" in self.request.POST.keys():
-            tag_name = self.request.POST['tag']
-
-            try:
-                tag = Tag.objects.get(name__iexact=tag_name)
-            except Tag.DoesNotExist:
-                tag = Tag(name=tag_name, description="Branch %s" % tag_name)
-                tag.save()
-
-        if tag: 
-            app.tags.add(tag)
+        self.add_tag(app)
         app.save()
 
 upload_package_handlers = dict({ 'IOS' : iOSPackageUploadHandler, 'ANDROID' : AndroidPackageUploadHandler })
