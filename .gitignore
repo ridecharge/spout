@@ -3,3 +3,14 @@
 local_settings.py
 apache
 client_data
+*.pyc
+*.swp
+.Python
+local_settings.py
+client_data
+
+lib
+src
+bin
+include
+share
