@@ -1,4 +1,5 @@
-https://www.djangoproject.com/download/1.5a1/tarball/#egg=django
+Django==1.5.1
+wsgiref==0.1.2
 Fabric==1.5.1
 GitPython==0.3.2.RC1
 Pillow==1.7.8
@@ -20,4 +21,4 @@ pycrypto==2.6
 pypng==0.0.13
 six==1.2.0
 smmap==0.8.2
-wsgiref==0.1.2
+
