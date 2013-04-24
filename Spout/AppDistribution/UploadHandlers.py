@@ -131,6 +131,10 @@ class iOSPackageUploadHandler(BaseUploadHandler):
         app.product = Product.objects.get(name__iexact=self.request.POST['product']) # fetch product by name, case insensitive
         app.save()
 
+        dsym_asset = AppAsset(app=app, asset_file=dsym)
+        dsym_asset.save()
+        app.assets = dsym_asset
+
         self.add_tag(app)
         app.save()
 

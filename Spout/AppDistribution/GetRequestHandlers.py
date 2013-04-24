@@ -84,7 +84,8 @@ class iOSGetRequestHandler(BaseGetRequestHandler):
     def __ipa_response(self):
 
         self.app.package.open()
-        
+        self.app.download_count += 1
+        self.app.save()
         return HttpResponse(content=self.app.package, mimetype="application/octet-stream")
 
     def __plist_from_ipa(self, ipa_file):
