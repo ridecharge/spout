@@ -10,7 +10,7 @@ def zip_apps_and_assets(apps):
 
     working_dir = tempfile.mkdtemp()
     os.chdir(working_dir)
-    root_dir = "%s" % datetime.now().strftime("%y-%m-%d-%H:%M:%S") 
+    root_dir = "%s" % datetime.now().strftime("%y-%m-%d-%H-%M-%S") 
     os.mkdir(root_dir)
     os.chdir(root_dir)
     zip_filename = "%s.zip" % root_dir
@@ -18,7 +18,7 @@ def zip_apps_and_assets(apps):
 
     for app in apps:
 
-        folder_string = "%s - %s" % (app.name, app.creation_date.strftime("%Y %m %d %H:%M:%S"))
+        folder_string = "%s - %s" % (app.name, app.creation_date.strftime("%Y %m %d %H-%M-%S"))
 
         os.mkdir(folder_string)
         shutil.copy(app.package.name, folder_string)

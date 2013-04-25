@@ -1,6 +1,7 @@
 from django.contrib import admin
 from AppDistribution.models import *
 from AppDistribution.forms import UploadBuildForm
+from AppDistribution.utils import zipapps
 
 
 #Stuff for admining custom user object
@@ -9,6 +10,7 @@ from django import forms
 from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
+from django.http import HttpResponseRedirect, HttpResponse
 
 #endstuff
 
@@ -28,6 +30,15 @@ class AppAdmin(admin.ModelAdmin):
 
     list_display = ('product', 'name', 'version', 'note', 'creation_date', 'uuid')
     list_filter = ('product', 'name', 'tags',)
+    actions = ['create_zip']
+
+    def create_zip(self, request, queryset):
+
+        zipfile = zipapps.zip_apps_and_assets(queryset)
+        thefile = open(zipfile.fp.name, "r")
+        
+        return HttpResponse(thefile, mimetype="application/zip")
+    create_zip.short_description = "Download apps and related assets as zip"
 
     def icon_image(obj):
         return u"<img src='%s'>" % obj.icon_url
