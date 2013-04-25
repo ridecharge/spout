@@ -7,6 +7,7 @@ from django.template import RequestContext, Context, Template
 
 
 from datetime import datetime
+from django.utils import timezone
 from zipfile import ZipFile
 import tempfile
 import shutil
@@ -238,7 +239,12 @@ def page(request, page_slug):
         return HttpResponse(content=content, mimetype="application/json")
 
     else:
-            
+
+        if page.expiration_date != None and timezone.now() > page.expiration_date: 
+            return HttpResponse(content="This page has expired.  Please contact your admin for access.")
+        if request.user.id != None and request.user.expiration_date != None and timezone.now() > request.user.expiration_date:
+            return HttpResponse(content="Your user account has expired.  Please contact your admin for access.")
+
         if page.requires_auth == False:
                 return render_to_response("page.html", {'page': page}, context_instance=RequestContext(request))
         elif (page.requires_auth and request.user.is_authenticated()):
@@ -247,17 +253,9 @@ def page(request, page_slug):
                 return render_to_response("page.html", {'page': page}, context_instance=RequestContext(request))
             else:
                 return HttpResponse(content="You are not authorized to view this page.")
-            """ 
-
-            if request.user.groups.filter(spoutuser__groups=page.allowed_groups.all()).count() > 0:
-                return render_to_response("page.html", {'page': page}, context_instance=RequestContext(request))
-            else:
-                return HttpResponse(content="You are not authorized to view this page.")
-            """
             
         elif request.user.is_authenticated() == False: 
             return HttpResponseRedirect("/accounts/login/?next=%s" % request.path)
-
 
 def asset_redirect(request, uuid):
 
