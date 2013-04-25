@@ -88,7 +88,7 @@ class App(models.Model):
     assets = models.ManyToManyField('AppAsset', blank=True, null=True)
     download_count = models.IntegerField(default=0)
     product = models.ForeignKey('Product')
-    tags = models.ManyToManyField('Tag', related_name='apps')
+    tags = models.ManyToManyField('Tag', related_name='apps', blank=True, null=True)
     note = models.CharField(max_length=255, blank=True, null=True)
 
     icon = models.ImageField(upload_to=settings.APP_ICON_ROOT, blank=True, null=True)
@@ -133,7 +133,7 @@ class Tag(models.Model):
         return self.name
 
     name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
+    description = models.CharField(max_length=255, blank=True, null=True)
 
 class Product(models.Model):
 
@@ -151,7 +151,7 @@ class PageRow(models.Model):
 
     page = models.ForeignKey('Page')
     product = models.ForeignKey(Product)
-    tag = models.ForeignKey(Tag)
+    tag = models.ForeignKey(Tag, blank=True, null=True)
     show_more_versions = models.BooleanField()
     show_tag = models.BooleanField()
     show_age = models.BooleanField()
