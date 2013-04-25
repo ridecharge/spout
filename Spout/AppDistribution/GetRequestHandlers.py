@@ -74,6 +74,9 @@ class iOSGetRequestHandler(BaseGetRequestHandler):
         bundle_version = parsed_dict['CFBundleVersion']
         app_title = parsed_dict['CFBundleName']
 
+        self.app.download_count += 1
+        self.app.save()
+
         template = "generic_enterprise_manifest.plist"
         theZip.close()
         return render_to_response(template, {"app_url": url,
@@ -84,8 +87,6 @@ class iOSGetRequestHandler(BaseGetRequestHandler):
     def __ipa_response(self):
 
         self.app.package.open()
-        self.app.download_count += 1
-        self.app.save()
         return HttpResponse(content=self.app.package, mimetype="application/octet-stream")
 
     def __plist_from_ipa(self, ipa_file):
