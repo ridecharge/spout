@@ -28,7 +28,7 @@ admin.site.register(SpoutSite, SpoutSiteAdmin)
 
 class AppAdmin(admin.ModelAdmin):
 
-    list_display = ('product', 'name', 'version', 'note', 'creation_date', 'uuid')
+    list_display = ('product', 'name', 'version', 'note', 'creation_date', 'uuid', 'download_count')
     list_filter = ('product', 'name', 'tags',)
     actions = ['create_zip']
 
