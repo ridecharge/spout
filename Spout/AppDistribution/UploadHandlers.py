@@ -109,7 +109,7 @@ class iOSPackageUploadHandler(BaseUploadHandler):
 
         super(iOSPackageUploadHandler, self).__init__(request)
 
-        self.temp_ipa_path = save_uploaded_file_to_temp(request.FILES[package_key])
+        self.ipa = request.FILES[package_key]
 
         if dsym_key in request.FILES:
             self.dsym = request.FILES[dsym_key]
@@ -126,7 +126,7 @@ class iOSPackageUploadHandler(BaseUploadHandler):
 
         app = App()
 
-        app.package = File(open(self.temp_ipa_path))
+        app.package = self.ipa
         if 'note' in self.request.POST.keys(): 
             app.note = self.request.POST['note'] 
 
