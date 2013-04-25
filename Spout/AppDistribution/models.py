@@ -78,11 +78,6 @@ class SpoutSite(models.Model):
         except KeyError:
             pass
 
-class AppAsset(models.Model):
-
-    notes = models.CharField(max_length=255, null=True, blank=True)
-    asset_file = models.FileField(upload_to=settings.APP_PACKAGE_ROOT)
-
 
 class App(models.Model):
 
@@ -90,7 +85,7 @@ class App(models.Model):
         return "%s - %s" % (self.name, self.version)
 
     package = models.FileField(upload_to=settings.APP_PACKAGE_ROOT)
-    assets = models.ManyToManyField('AppAsset')
+    assets = models.ManyToManyField('AppAsset', blank=True, null=True)
     download_count = models.IntegerField(default=0)
     product = models.ForeignKey('Product')
     tags = models.ManyToManyField('Tag', related_name='apps')
@@ -116,7 +111,17 @@ class App(models.Model):
 
     icon_url = property(_icon_url)
     formatted_age = property(_formatted_age)
-        
+ 
+class AppAsset(models.Model):
+
+    def __unicode__(self):
+        return self.asset_file.name
+
+    notes = models.CharField(max_length=255, null=True, blank=True)
+    type = models.CharField(max_length=255, null=True, blank=True)
+    asset_file = models.FileField(upload_to=settings.APP_PACKAGE_ROOT)
+
+       
 class AssetType(models.Model):
 
     name = models.CharField(max_length=255)

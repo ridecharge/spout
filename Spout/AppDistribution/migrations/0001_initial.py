@@ -3,6 +3,7 @@ import datetime
 from south.db import db
 from south.v2 import SchemaMigration
 from django.db import models
+from AppDistribution.models import *
 
 
 class Migration(SchemaMigration):
@@ -147,6 +148,15 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'AppDistribution', ['Crash'])
 
+        main_page = Page(title="First Page", heading="Welcome!", top_html="Welcome to Spout!  You haven't configured your site to have a main page yet.  A page is the place where your apps are displayed to users both on the Spout native client and on the web.  Go to <yoursitedomain>/admin to set this up!  Thanks for using Spout!", requires_auth=False)
+        main_page.save()
+
+
+        site = SpoutSite(domain="http://example.com", name="Example Site", home_page=main_page)
+        site.save()
+
+        user = SpoutUser.objects.create_superuser("SpoutAdmin", "imakeapps")
+        user.save()
 
     def backwards(self, orm):
         # Deleting model 'SpoutSite'

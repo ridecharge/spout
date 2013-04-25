@@ -34,8 +34,8 @@ class AppAdmin(admin.ModelAdmin):
     icon_image.allow_tags = True
 
 
-    exclude = ('icon',)
-    readonly_fields = (icon_image, 'uuid', 'version', 'name', 'creation_date',)
+    exclude = ('icon', 'download_count')
+    readonly_fields = (icon_image, 'uuid', 'version', 'name', 'creation_date', 'assets')
 
 admin.site.register(App, AppAdmin)
 
