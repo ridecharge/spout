@@ -16,7 +16,7 @@ import re
 
 from UploadHandlers import UploadRequestHandler
 from GetRequestHandlers import GetRequestHandler
-from urlFactory import UrlFactory
+from ResponseFactory import PackageHttpResponseFactory
 from AppDistribution.models import *
 from AppDistribution import settings
 from AppDistribution import forms
@@ -262,8 +262,8 @@ def page(request, page_slug):
 def asset_redirect(request, uuid):
 
     app = App.objects.get(uuid=uuid)
-    url = UrlFactory(request).package_url(app)
-    return HttpResponseRedirect(url)
+    response = PackageHttpResponseFactory(request).response(app)
+    return response
    
 def apps(request):
 

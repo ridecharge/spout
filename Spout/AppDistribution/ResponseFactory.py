@@ -1,9 +1,20 @@
+from django.http.response import HttpResponseRedirect
 
-
-class UrlFactory(object):
+class PackageHttpResponseFactory(object):
 
     def __init__(self, request):
         self.request = request
+
+    def response(self, app):
+ 
+        if app.device_type == "ANDROID":
+            return HttpResponseRedirect(self.apk_url(app))
+        elif app.device_type == "IOS":
+            HttpResponseRedirect.allowed_schemes += ['itms-services']
+            response = HttpResponseRedirect(self.ipa_url(app))
+            return response
+
+       
 
     def package_url(self, app):
 
