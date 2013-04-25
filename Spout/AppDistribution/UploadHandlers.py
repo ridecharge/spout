@@ -70,11 +70,13 @@ class BaseUploadHandler(object):
         if "tag" in self.request.POST.keys():
             tag_name = self.request.POST['tag']
 
-            try:
-                tag = Tag.objects.get(name__iexact=tag_name)
-            except Tag.DoesNotExist:
-                tag = Tag(name=tag_name, description="Branch %s" % tag_name)
-                tag.save()
+            if len(tag_name) > 0:
+
+                try:
+                    tag = Tag.objects.get(name__iexact=tag_name)
+                except Tag.DoesNotExist:
+                    tag = Tag(name=tag_name)
+                    tag.save()
 
         if tag: 
             app.tags.add(tag)
