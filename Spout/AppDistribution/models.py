@@ -7,6 +7,8 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 
 
+from bitfield import BitField
+
 from django.contrib.sites.models import Site
 
 from os import remove
@@ -155,6 +157,12 @@ class PageRow(models.Model):
     show_more_versions = models.BooleanField()
     show_tag = models.BooleanField()
     show_age = models.BooleanField()
+
+    show_options = BitField(flags=('tag', 
+                                   'age', 
+                                   'version', 
+                                   'more_versions',))
+
 
     def _get_app(self):
         """ Returns the most recent app associated with the page row """
