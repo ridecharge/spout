@@ -29,12 +29,18 @@
                                             </a>
                  
                                             {{ row }}
-                                            {% if row.show_age %}<br>
+
+                                            {% if row.show_options.version %}
+                                            {{ row.app.version }}<br>
+                                            {% endif %}
+
+                                            {% if row.show_options.age %}<br>
                                             {{ row.app.formatted_age }}
+
                                             {% endif %}
                                         </div>
                                         <div class="product-install-button" style="float: right; display: inline">
-                                            {% if row.show_more_versions %}
+                                            {% if row.show_options.more_versions %}
                                             <a class="product-plus-button" id="{{ row.product.id }}">[More Info]</a> 
                                             {% endif %}
                                                     <a href="/app/asset/{{ row.app.uuid }}">INSTALL</a>
