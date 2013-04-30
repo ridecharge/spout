@@ -11,6 +11,8 @@ from django.contrib.auth.models import Group
 from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.http import HttpResponseRedirect, HttpResponse
+from bitfield import BitField
+from bitfield.forms import BitFieldCheckboxSelectMultiple
 
 #endstuff
 
@@ -73,6 +75,16 @@ class PageRowInline(admin.TabularInline):
 #            kwargs["queryset"] = Tag.objects.filter(apps__product=
         return super(PageRowInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
     """
+    class Media:
+        css = {
+                "all" : ("css/admin.css",)
+       }
+    formfield_overrides = {
+                        BitField: {'widget': BitFieldCheckboxSelectMultiple},
+                            }
+
+   
+   
 
     model = PageRow
 
@@ -80,6 +92,7 @@ class PageAdmin(admin.ModelAdmin):
 
     change_form_template = "admin/change_form_w.html"
     readonly_fields = ('slug',)
+    
     inlines = [PageRowInline]
 
 admin.site.register(Page, PageAdmin)
