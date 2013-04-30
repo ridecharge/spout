@@ -1,5 +1,4 @@
 Django==1.5.1
-wsgiref==0.1.2
 Fabric==1.5.1
 GitPython==0.3.2.RC1
 Pillow==1.7.8
@@ -10,6 +9,7 @@ async==0.6.1
 biplist==0.5
 bpython==0.11
 distribute==0.6.30
+django-bitfield==1.6.4
 django-tinymce==1.5.1b2
 -e git+https://github.com/pydanny/django-wysiwyg.git@5d372b8b7828a02f63b2d2b00831003d972024f1#egg=django_wysiwyg-dev
 elementtree==1.2.7-20070827-preview
