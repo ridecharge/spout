@@ -27,16 +27,13 @@
                                             <a href="/app/asset/{{ row.app.uuid }}">
                                                 <img style="width: 44px; height: 44px; margin: 0 10px" src="{{ row.app.icon_url }}" width=44 height=44>
                                             </a>
-                 
-                                            {{ row }}
 
+                                            {{ row.product.name }} {% if row.show_options.tag %}- {{ row.tag.short_description }}{% endif %}<br>
                                             {% if row.show_options.version %}
-                                            {{ row.app.version }}<br>
+                                            {{ row.app.version }}
                                             {% endif %}
-
                                             {% if row.show_options.age %}<br>
                                             {{ row.app.formatted_age }}
-
                                             {% endif %}
                                         </div>
                                         <div class="product-install-button" style="float: right; display: inline">
