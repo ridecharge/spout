@@ -134,6 +134,10 @@ class Tag(models.Model):
     def __unicode__(self):
         return self.name
 
+    def _short_description(self):
+        return self.description if len(self.description) > 0 else self.name
+
+    short_description = property(_short_description)
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, blank=True, null=True)
 
@@ -146,7 +150,7 @@ class Product(models.Model):
 class PageRow(models.Model):
 
     def __unicode__(self):
-        if self.show_tag:
+        if self.show_options.tag:
             return "%s - %s" % (self.product.name, self.tag.name)
         else:
             return self.product.name
@@ -154,9 +158,6 @@ class PageRow(models.Model):
     page = models.ForeignKey('Page')
     product = models.ForeignKey(Product)
     tag = models.ForeignKey(Tag, blank=True, null=True)
-    show_more_versions = models.BooleanField()
-    show_tag = models.BooleanField()
-    show_age = models.BooleanField()
 
     show_options = BitField(flags=('tag', 
                                    'age', 
