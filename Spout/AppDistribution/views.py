@@ -218,10 +218,12 @@ def page(request, page_slug):
        
         page_rows = []
         for row in page.pagerow_set.all():
+            row_dict = {}
             if row.app:
 
                 app = row.app
 
+                row_dict['id'] = app.uuid
                 row_dict['product'] = row.product.name
                 if app.icon_url:
                     row_dict['icon'] = app.icon_url
