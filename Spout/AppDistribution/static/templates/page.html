@@ -18,7 +18,7 @@
                                     {{ page.top_html | safe }}
                                     {% endif %}
             
-                                {% for row in page.pagerow_set.all %}
+                                {% for row in page.pagerows %}
                                     <li>
                                     {% if row.app %}
                                     <div class="product-row" style="display: inline-block; width: 95%" id="{{ row.product.id }}" >

@@ -18,6 +18,8 @@ APP_TYPE_CHOICES = (("ANDROID", "Android"),
                     ("IOS", "iOS"),
                     ("BLACKBERRY", "BlackBerry"))
 
+GROUP_BY_CHOICES = (("product", "Product"),
+                  ("tag", "Tag"))
 
 SITE_CACHE = {}
 
@@ -187,6 +189,17 @@ class Page(models.Model):
     slug = models.SlugField()
     requires_auth = models.BooleanField()
     expiration_date = models.DateTimeField(blank=True, null=True)
+    group_by = models.CharField(choices=GROUP_BY_CHOICES, max_length=100, blank=True, null=True)
+
+    def _pagerows(self):
+        if self.group_by != None:
+            rows = self.pagerow_set.all().order_by(self.group_by)
+        else:
+            rows = self.pagerow_set.all()
+
+        return rows
+
+    pagerows = property(_pagerows)
 
     def save(self, *args, **kwargs):
         self.slug = slugify(self.title)
