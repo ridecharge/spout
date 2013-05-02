@@ -234,7 +234,9 @@ def page(request, page_slug):
                 page_rows.append(row_dict)
             
 
+
         page_dict = {'title' : page.title,
+                'allowed_pages' : allowed_pages,
                 'heading' :  page.heading,
                 'rows' : page_rows }
         content = json.dumps(page_dict)
@@ -248,11 +250,14 @@ def page(request, page_slug):
             return HttpResponse(content="Your user account has expired.  Please contact your admin for access.")
 
         if page.requires_auth == False:
-                return render_to_response("page.html", {'page': page}, context_instance=RequestContext(request))
+                allowed_pages = Page.objects.filter(requires_auth=False)
+                return render_to_response("page.html", {'page': page, 'allowed_pages' : allowed_pages}, context_instance=RequestContext(request))
         elif (page.requires_auth and request.user.is_authenticated()):
 
-            if page in request.user.allowed_pages.all():
-                return render_to_response("page.html", {'page': page}, context_instance=RequestContext(request))
+            allowed_pages = request.user.allowed_pages.all()
+            print allowed_pages
+            if page in allowed_pages:
+                return render_to_response("page.html", {'page': page, 'allowed_pages': allowed_pages}, context_instance=RequestContext(request))
             else:
                 return HttpResponse(content="You are not authorized to view this page.")
             

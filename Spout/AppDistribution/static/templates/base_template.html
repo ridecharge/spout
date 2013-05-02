@@ -38,9 +38,11 @@
                             <img style="float: left; width: 50px" src="{{ STATIC_URL }}img/spout-icon.png">
                             <h1><a href="/" class="mobileUI-site-name">{{ site.name }}</a></h1>
                                 <nav class="mobileUI-site-nav">
+                                {% for page in allowed_pages %}
                                     <ul>
-                                        <li><a href="/">Home</a></li>
+                                        <li><a href="/{{ page.slug }}">{{ page.title }}</a></li>
                                     </ul>
+                                {% endfor %}
                                 </nav>
                                 <br />
                             </header>
