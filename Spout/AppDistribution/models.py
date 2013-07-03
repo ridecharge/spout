@@ -100,7 +100,7 @@ class App(models.Model):
     name = models.CharField(max_length=255)
     creation_date = models.DateTimeField()
     device_type = models.CharField(choices=APP_TYPE_CHOICES, default="IOS", max_length=255) #TODO This should be a function, not stored
-    uuid = models.CharField(max_length=255, blank=True, null=True, unique=True)
+    uuid = models.CharField(max_length=255, blank=True, null=True)
 
     def _formatted_age(self):
         return humanize.naturaltime(self.creation_date)
@@ -307,6 +307,3 @@ class Setting(models.Model):
         }
         return types[self.value_type](self.value)
 
-class Crash(models.Model):
-    uuid = models.ForeignKey(App, to_field="uuid")
-    body = models.TextField()
