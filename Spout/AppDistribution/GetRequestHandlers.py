@@ -32,7 +32,7 @@ class BaseGetRequestHandler(object):
 
         request_re = r'.*(?P<uuid>([A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12})).(?P<extension>\w+)'
         match_dict = re.match(request_re, request.META['PATH_INFO']).groupdict()
-        self.app = App.objects.get(uuid=match_dict['uuid'])
+        self.app = App.objects.filter(uuid=match_dict['uuid'])[0]
         self.extension = match_dict['extension']
         self.request = request
 
