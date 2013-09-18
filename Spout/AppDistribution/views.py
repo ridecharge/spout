@@ -266,7 +266,7 @@ def page(request, page_slug):
 
 def asset_redirect(request, uuid):
 
-    app = App.objects.get(uuid=uuid)
+    app = App.objects.filter(uuid=uuid)[0]
     response = PackageHttpResponseFactory(request).response(app)
     return response
    
