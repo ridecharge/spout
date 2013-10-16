@@ -89,7 +89,7 @@ class App(models.Model):
     def __unicode__(self):
         return "%s - %s" % (self.name, self.version)
 
-    primary_asset = models.ForeignKey('AppAsset', related_name='app_primary', null=True)
+    primary_asset = models.ForeignKey('AppAsset', related_name='app_primary', null=True, blank=True)
 
     package = models.FileField(upload_to=settings.APP_PACKAGE_ROOT)
     assets = models.ManyToManyField('AppAsset', blank=True, null=True, related_name='app')
