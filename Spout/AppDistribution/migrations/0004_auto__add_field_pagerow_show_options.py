@@ -15,17 +15,6 @@ class Migration(SchemaMigration):
                       keep_default=False)
 
 
-        page_rows = PageRow.objects.all()
-
-        for row in page_rows:
-
-           row.show_options.more_versions = row.show_more_versions
-           row.show_options.tag = row.show_tag
-           row.show_options.age = row.show_age
-           row.show_options.version = 0
-           row.save()
-
-
     def backwards(self, orm):
         # Deleting field 'PageRow.show_options'
         db.delete_column(u'AppDistribution_pagerow', 'show_options')
