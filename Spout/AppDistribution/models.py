@@ -90,9 +90,8 @@ class App(models.Model):
         return "%s - %s" % (self.name, self.version)
 
     primary_asset = models.ForeignKey('AppAsset', related_name='app_primary', null=True, blank=True)
-
-    package = models.FileField(upload_to=settings.APP_PACKAGE_ROOT)
     assets = models.ManyToManyField('AppAsset', blank=True, null=True, related_name='app')
+
     download_count = models.IntegerField(default=0)
     product = models.ForeignKey('Product')
     tags = models.ManyToManyField('Tag', related_name='apps', blank=True, null=True)
@@ -103,7 +102,6 @@ class App(models.Model):
     name = models.CharField(max_length=255)
     creation_date = models.DateTimeField()
     device_type = models.CharField(choices=APP_TYPE_CHOICES, default="IOS", max_length=255) #TODO This should be a function, not stored
-    uuid = models.CharField(max_length=255, blank=True, null=True)
 
     def _formatted_age(self):
         return humanize.naturaltime(self.creation_date)
@@ -129,7 +127,7 @@ class AppAsset(models.Model):
         asset_type = AssetType.get_or_create(extension)
         super(AssetType, self).save(*args, **kwargs)
 
-    notes = models.CharField(max_length=255, null=True, blank=True)
+    uuid = models.CharField(max_length=255, null=True, blank=True)
     type = models.CharField(max_length=255, null=True, blank=True)
     asset_type = models.ForeignKey('AssetType', null=True)
     asset_file = models.FileField(upload_to=settings.APP_PACKAGE_ROOT)
