@@ -148,9 +148,6 @@ class Migration(SchemaMigration):
         ))
         db.send_create_signal(u'AppDistribution', ['Crash'])
 
-        user = SpoutUser.objects.create_superuser("SpoutAdmin", "imakeapps")
-        user.save()
-
     def backwards(self, orm):
         # Deleting model 'SpoutSite'
         db.delete_table(u'AppDistribution_spoutsite')
