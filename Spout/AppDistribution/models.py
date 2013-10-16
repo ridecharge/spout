@@ -12,6 +12,7 @@ from bitfield import BitField
 from django.contrib.sites.models import Site
 
 from os import remove
+from os.path import splitext
 
 
 APP_TYPE_CHOICES = (("ANDROID", "Android"),
@@ -121,14 +122,30 @@ class AppAsset(models.Model):
     def __unicode__(self):
         return self.asset_file.name
 
+    def save(self):
+        extension = splitext(asset_file.name)
+        asset_type = AssetType.get_or_create(extension)
+        super(AssetType, self).save(*args, **kwargs)
+
     notes = models.CharField(max_length=255, null=True, blank=True)
     type = models.CharField(max_length=255, null=True, blank=True)
+    asset_type = models.ForeignKey('AssetType', null=True)
     asset_file = models.FileField(upload_to=settings.APP_PACKAGE_ROOT)
 
        
 class AssetType(models.Model):
 
-    name = models.CharField(max_length=255)
+    @classmethod
+    def get_or_create(self, extension):
+
+        try:
+            asset_type = AssetType.objects.get(extension=extension)
+        except AssetType.DoesNotExist:
+            asset_type = AssetType(extension=extension)
+
+        return asset_type
+
+    name = models.CharField(max_length=255, blank=True, null=True)
     extension = models.CharField(max_length=10)
 
 class Tag(models.Model):
