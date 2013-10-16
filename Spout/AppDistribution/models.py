@@ -89,8 +89,10 @@ class App(models.Model):
     def __unicode__(self):
         return "%s - %s" % (self.name, self.version)
 
+    primary_asset = models.ForeignKey('AppAsset', related_name='app_primary', null=True)
+
     package = models.FileField(upload_to=settings.APP_PACKAGE_ROOT)
-    assets = models.ManyToManyField('AppAsset', blank=True, null=True)
+    assets = models.ManyToManyField('AppAsset', blank=True, null=True, related_name='app')
     download_count = models.IntegerField(default=0)
     product = models.ForeignKey('Product')
     tags = models.ManyToManyField('Tag', related_name='apps', blank=True, null=True)
