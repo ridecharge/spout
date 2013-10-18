@@ -129,7 +129,6 @@ class AppAsset(models.Model):
 
     primary = models.BooleanField()
     uuid = models.CharField(max_length=255, null=True, blank=True)
-    type = models.CharField(max_length=255, null=True, blank=True)
     asset_type = models.ForeignKey('AssetType', null=True)
     asset_file = models.FileField(upload_to=settings.APP_PACKAGE_ROOT)
 
