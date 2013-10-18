@@ -89,7 +89,6 @@ class App(models.Model):
     def __unicode__(self):
         return "%s - %s" % (self.name, self.version)
 
-    assets = models.ManyToManyField('AppAsset', blank=True, null=True, related_name='temp-assets')
 
     download_count = models.IntegerField(default=0)
     product = models.ForeignKey('Product')
@@ -126,7 +125,7 @@ class AppAsset(models.Model):
         asset_type = AssetType.get_or_create(extension)
         super(AssetType, self).save(*args, **kwargs)
 
-    app = models.ForeignKey('App', related_name='app_assets', null=True)
+    app = models.ForeignKey('App', related_name='assets', null=True)
 
     primary = models.BooleanField()
     uuid = models.CharField(max_length=255, null=True, blank=True)
