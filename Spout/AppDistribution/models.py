@@ -127,6 +127,7 @@ class AppAsset(models.Model):
         asset_type = AssetType.get_or_create(extension)
         super(AssetType, self).save(*args, **kwargs)
 
+    primary = models.BooleanField()
     uuid = models.CharField(max_length=255, null=True, blank=True)
     type = models.CharField(max_length=255, null=True, blank=True)
     asset_type = models.ForeignKey('AssetType', null=True)
