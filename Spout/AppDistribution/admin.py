@@ -13,11 +13,13 @@ from django.contrib.auth.forms import ReadOnlyPasswordHashField
 from django.http import HttpResponseRedirect, HttpResponse
 from bitfield import BitField
 from bitfield.forms import BitFieldCheckboxSelectMultiple
+from django.forms.models import inlineformset_factory
 
 #endstuff
 
 from django.contrib.sites.models import Site
 from django.contrib.auth.models import User, Group
+from django.contrib.admin.options import InlineModelAdmin
 admin.site.unregister(Site)
 admin.site.unregister(Group)
 
@@ -27,12 +29,23 @@ class SpoutSiteAdmin(admin.ModelAdmin):
 
 admin.site.register(SpoutSite, SpoutSiteAdmin)
 
+class AppAssetForm(forms.ModelForm):
+    model = App.assets
+    primary = forms.BooleanField()
+    uuid = forms.CharField()
 
+class AppAssetInline(admin.TabularInline):
+
+    model = AppAsset
+    readonly_fields = ('uuid', 'asset_type',)
+
+    
 class AppAdmin(admin.ModelAdmin):
 
-    list_display = ('product', 'name', 'version', 'note', 'creation_date', 'uuid', 'download_count')
+    list_display = ('product', 'name', 'version', 'note', 'creation_date', 'download_count')
     list_filter = ('product', 'name', 'tags',)
     actions = ['create_zip']
+    inlines = [AppAssetInline,]
 
     def create_zip(self, request, queryset):
 
@@ -40,6 +53,7 @@ class AppAdmin(admin.ModelAdmin):
         thefile = open(zipfile.fp.name, "r")
         
         return HttpResponse(thefile, mimetype="application/zip")
+
     create_zip.short_description = "Download apps and related assets as zip"
 
     def icon_image(obj):
@@ -48,7 +62,7 @@ class AppAdmin(admin.ModelAdmin):
 
 
     exclude = ('icon',)
-    readonly_fields = (icon_image, 'uuid', 'version', 'name', 'creation_date', 'assets', 'download_count')
+    readonly_fields = (icon_image, 'version', 'name', 'creation_date', 'download_count')
 
 admin.site.register(App, AppAdmin)
 
