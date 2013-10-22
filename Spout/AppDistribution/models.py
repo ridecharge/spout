@@ -98,7 +98,7 @@ class App(models.Model):
     icon = models.ImageField(upload_to=settings.APP_ICON_ROOT, blank=True, null=True)
     version = models.CharField(max_length=255)
     name = models.CharField(max_length=255)
-    creation_date = models.DateTimeField()
+    creation_date = models.DateTimeField(blank=True, null=True)
     device_type = models.CharField(choices=APP_TYPE_CHOICES, default="IOS", max_length=255) #TODO This should be a function, not stored
 
     def _formatted_age(self):
