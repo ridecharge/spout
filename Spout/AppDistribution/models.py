@@ -7,6 +7,8 @@ from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
 
 
+from AppDistribution.PackageHandlers import PackageHandler
+
 from bitfield import BitField
 
 from django.contrib.sites.models import Site
@@ -101,6 +103,15 @@ class App(models.Model):
     creation_date = models.DateTimeField(blank=True, null=True)
     device_type = models.CharField(choices=APP_TYPE_CHOICES, default="IOS", max_length=255) #TODO This should be a function, not stored
 
+    def save(self, *args, **kwargs):
+        if self.id is None:
+            self.creation_date = datetime.now()
+        super(App, self).save(*args, **kwargs)
+        handler = PackageHandler(self)
+        handler.handle()
+        super(App, self).save(*args, **kwargs)
+
+
     def _formatted_age(self):
         return humanize.naturaltime(self.creation_date)
     def _icon_url(self):
@@ -120,10 +131,10 @@ class AppAsset(models.Model):
     def __unicode__(self):
         return self.asset_file.name
 
-    def save(self):
-        extension = splitext(asset_file.name)
-        asset_type = AssetType.get_or_create(extension)
-        super(AssetType, self).save(*args, **kwargs)
+    def save(self, *args, **kwargs):
+        extension = splitext(self.asset_file.name)
+        self.asset_type = AssetType.get_or_create(extension)
+        super(AppAsset, self).save(*args, **kwargs)
 
     app = models.ForeignKey('App', related_name='assets', null=True)
 

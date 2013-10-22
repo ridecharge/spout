@@ -10,6 +10,7 @@ from androguard.core.bytecodes import apk
 from elementtree.ElementTree import Element, parse
 from xml.dom import minidom
 from md5 import md5
+from uuid import uuid1
 
 from django.core.files import File
 
@@ -20,9 +21,9 @@ from UnCrushPNG import updatePNG
 
 class PackageHandler(object):
 
-    def __init__(self, package_fp, app):
+    def __init__(self, app):
         if app.device_type == "IOS":
-            self.handler = iOSPackageHandler(package_fp, app)
+            self.handler = iOSPackageHandler(app)
         elif app.device_type == "ANDROID":
             self.handler = AndroidPackageHandler(package_fp, app)
             
@@ -106,13 +107,13 @@ class AndroidPackageHandler(object):
 
 class iOSPackageHandler(object):
 
-    def __init__(self, ipa_path, app):
+    def __init__(self, app):
 
-        self.ipa_file = ZipFile(ipa_path) 
+        self.ipa_asset = app.assets.get(primary=True)
+        self.ipa_file = ZipFile(self.ipa_asset.asset_file.path) 
         self.temp_dir = mkdtemp()
-        self.ipa_file_path = ipa_path
+        self.ipa_file_path = self.ipa_asset.asset_file.path
         self.ipa_plist = self.plist_from_ipa()
-        self.uuid = self.extract_uuid()
         self.app = app
 
     def handle_package(self):
@@ -122,10 +123,6 @@ class iOSPackageHandler(object):
         self.app.version = self.ipa_plist['CFBundleVersion']
         self.app.name = self.ipa_plist['CFBundleName']
         self.app.device_type = "IOS"
-        self.app.creation_date = datetime.now()
-        self.app.uuid = self.uuid
-
-        self.app.package = self.ipa_file_path
 
     def extract_app_name(self): 
 
@@ -148,7 +145,7 @@ class iOSPackageHandler(object):
         dump_handle.close()
         """
 
-        md5_raw = x = md5(self.ipa_file_path.read()).hexdigest().upper()
+        uuid_string = x = uuid1().hex
         uuid = "%s-%s-%s-%s-%s" % (x[0:8], x[8:12], x[12:16], x[16:20], x[20:32]) 
 
 
