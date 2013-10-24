@@ -34,8 +34,11 @@ urlpatterns = patterns('AppDistribution.views',
      url(r'^app/(?P<app_id>\w+)/tag', 'app_tag'),
      url(r'^app/tags/all', 'all_tags'),
      url(r'^app/create', 'create_app'),
+     url(r'^app/(?P<app_id>\w+)/package', 'get_app_package_redirect'),
 
      url(r'^app/(?P<app_id>\w+)/asset/add', 'add_asset_to_app'),
+     url(r'^app/(?P<app_id>\w+)/asset/(?P<asset_id>\w+)(?P<extension>\.[a-z0-9A-Z]*)?', 'get_app_asset'),
+
 
      url(r'^page/(?P<page_slug>[-\w]+)$', 'page'),
 
