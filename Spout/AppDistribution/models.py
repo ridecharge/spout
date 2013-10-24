@@ -15,6 +15,7 @@ from django.contrib.sites.models import Site
 
 from os import remove
 from os.path import splitext
+from datetime import datetime
 
 
 APP_TYPE_CHOICES = (("ANDROID", "Android"),
@@ -107,10 +108,15 @@ class App(models.Model):
         if self.id is None:
             self.creation_date = datetime.now()
         super(App, self).save(*args, **kwargs)
-        handler = PackageHandler(self)
-        handler.handle()
-        super(App, self).save(*args, **kwargs)
 
+    @property
+    def primary_asset(self):
+
+        try:
+            primary_asset = self.assets.get(primary=True)
+            return primary_asset
+        except AppAsset.DoesNotExist:
+            return None
 
     def _formatted_age(self):
         return humanize.naturaltime(self.creation_date)
