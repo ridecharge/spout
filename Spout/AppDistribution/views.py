@@ -6,6 +6,7 @@ from django.db import IntegrityError
 from django.template import RequestContext, Context, Template
 from django.db.models import Q
 
+from django.core.files import File
 
 from datetime import datetime
 from django.utils import timezone
@@ -80,9 +81,27 @@ def upload_build(request):
     if request.method == 'POST':
         form = forms.UploadBuildForm(request.POST, request.FILES)    
         if form.is_valid():
+            product_string = form.cleaned_data['product']
+            product = Product.objects.get(name__iexact=product_string)
+ 
+            new_app = App(product=product, note=form.cleaned_data['note'], device_type=form.cleaned_data['file_type'])
+            new_app.save()
+        
+            try:
+                tag = Tag.get_or_create(request.POST['tag'])
+                new_app.tags.add(tag)
+            except KeyError:
+                pass
+           
 
-            handler = UploadRequestHandler(request)
-            handler.process_upload()
+            from UploadHandlers import save_uploaded_file_to_temp;
+
+            temp_package = save_uploaded_file_to_temp(request.FILES['app_package'])
+
+
+            app_asset = AppAsset(asset_file=File(open(temp_package)), primary=True)
+            app_asset.app = new_app
+            app_asset.save()
 
             ret_val = HttpResponseRedirect("/")
         else:
