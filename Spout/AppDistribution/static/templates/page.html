@@ -24,7 +24,7 @@
                                     <div class="product-row" style="display: inline-block; width: 95%" id="{{ row.product.id }}" >
                                       
                                        <div class="product-details" style="float: left; display: inline">
-                                            <a href="/app/asset/{{ row.app.uuid }}">
+                                           <a href="/app/{{ row.app.id }}/package">
                                                 <img style="width: 44px; height: 44px; margin: 0 10px" src="{{ row.app.icon_url }}" width=44 height=44>
                                             </a>
 
@@ -40,7 +40,7 @@
                                             {% if row.show_options.more_versions %}
                                             <a class="product-plus-button" id="{{ row.product.id }}">[More Info]</a> 
                                             {% endif %}
-                                                    <a href="/app/asset/{{ row.app.uuid }}">INSTALL</a>
+                                            <a href="/app/{{ row.app.id }}/package">INSTALL</a>
                                         </div>
              
                                     </div>
