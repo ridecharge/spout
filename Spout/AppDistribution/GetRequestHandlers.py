@@ -12,64 +12,40 @@ from django.shortcuts import get_object_or_404, render_to_response, render
 
 class GetRequestHandler(object):
 
-    def __init__(self, request):
+    def __init__(self, request, app, extension):
 
-        request_re = r'.*(?P<uuid>([A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12})).(?P<extension>\w+)'
-        match_dict = re.match(request_re, request.META['PATH_INFO']).groupdict()
-        self.extension = match_dict['extension']
+        self.app = app
+        self.extension = extension
         self.request = request
 
     def handler(self):
 
-        if self.extension in AndroidGetRequestHandler.handles:
-            return AndroidGetRequestHandler(self.request)
-        elif self.extension in iOSGetRequestHandler.handles:
-            return iOSGetRequestHandler(self.request)
+        if self.app.device_type in iOSGetRequestHandler.handles_device_type:
+            return iOSGetRequestHandler(self.request, self.app, self.extension)
 
 class BaseGetRequestHandler(object):
 
-    def __init__(self, request):
+    def __init__(self, request, app, extension):
 
-        request_re = r'.*(?P<uuid>([A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12})).(?P<extension>\w+)'
-        match_dict = re.match(request_re, request.META['PATH_INFO']).groupdict()
-        self.app = App.objects.filter(uuid=match_dict['uuid'])[0]
-        self.extension = match_dict['extension']
+        self.app = app
+        self.extension = extension
         self.request = request
-
-class AndroidGetRequestHandler(BaseGetRequestHandler):
-
-    handles = ['apk']
-
-    def respond(self):
-
-        if self.extension == "apk":
-            return self.apk_response()
-
-    def apk_response(self):
-
-        self.app.package.open() 
-        return HttpResponse(content=self.app.package, mimetype="application/octet-stream")
-
 
 class iOSGetRequestHandler(BaseGetRequestHandler):
 
-    handles = ['ipa', 'plist']
+    handles_device_type = "IOS"
 
     def respond(self):
 
-        responders = dict({ 'ipa' : self.__ipa_response,
-                            'plist' : self.__plist_response})
-
-        responder = responders[self.extension]
-
-        return responder()
+        if self.extension == ".plist":
+            return self.__plist_response()
 
     def __plist_response(self):
         """ Returns the formatted plist needed by iOS to download the ipa file."""
-        theZip = ZipFile(self.app.package.path)
+        theZip = ZipFile(self.app.primary_asset.asset_file.path)
         parsed_dict = self.__plist_from_ipa(theZip)
 
-        url = "http://%s/app/%s.ipa" % (self.request.get_host(), self.app.uuid) 
+        url = "http://%s/app/%s/asset/%s" % (self.request.get_host(), self.app.id, self.app.primary_asset.id) 
         bundle_id = parsed_dict['CFBundleIdentifier']
         bundle_version = parsed_dict['CFBundleVersion']
         app_title = parsed_dict['CFBundleName']
