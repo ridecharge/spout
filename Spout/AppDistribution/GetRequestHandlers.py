@@ -9,20 +9,6 @@ from django.http import HttpResponseRedirect, HttpResponse
 from django.template import RequestContext, Context, Template
 from django.shortcuts import get_object_or_404, render_to_response, render
 
-
-class GetRequestHandler(object):
-
-    def __init__(self, request, app, extension):
-
-        self.app = app
-        self.extension = extension
-        self.request = request
-
-    def handler(self):
-
-        if self.app.device_type in iOSGetRequestHandler.handles_device_type:
-            return iOSGetRequestHandler(self.request, self.app, self.extension)
-
 class BaseGetRequestHandler(object):
 
     def __init__(self, request, app, extension):
@@ -34,9 +20,9 @@ class BaseGetRequestHandler(object):
 class iOSGetRequestHandler(BaseGetRequestHandler):
 
     handles_device_type = "IOS"
+    handles_extensions = [".plist"]
 
     def respond(self):
-
         if self.extension == ".plist":
             return self.__plist_response()
 
@@ -82,4 +68,21 @@ class iOSGetRequestHandler(BaseGetRequestHandler):
         regex = re.compile(".*\.app/$")
         app_name = "".join([thefile.filename for thefile in filelist if regex.match(thefile.filename)][0].split(".")[0:-1][0].split("/")[-1])
         return app_name
+
+
+class GetRequestHandler(object):
+
+    handled_extensions = iOSGetRequestHandler.handles_extensions
+
+    def __init__(self, request, app, extension):
+
+        self.app = app
+        self.extension = extension
+        self.request = request
+
+    def handler(self):
+
+        if self.app.device_type in iOSGetRequestHandler.handles_device_type:
+            return iOSGetRequestHandler(self.request, self.app, self.extension)
+
 
