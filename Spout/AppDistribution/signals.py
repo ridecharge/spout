@@ -19,12 +19,19 @@ def delete_app(sender, instance, signal, *args, **kwargs):
     except OSError:
         pass
 
-def save_app(sender, instance, signal, *args, **kwargs):
+def post_save_asset(sender, instance, signal, *args, **kwargs):
 
     if instance.primary is True:
         handler = PackageHandler(instance)
         handler.handle()
 
+    if instance.asset_type == None:
+        extension = splitext(instance.asset_file.name)
+        instance.asset_type = AssetType.get_or_create(extension[1])
+        instance.save()
 
-post_save.connect(save_app, sender=AppAsset)
+
+
+
+post_save.connect(post_save_asset, sender=AppAsset)
 pre_delete.connect(delete_app, sender=App)
