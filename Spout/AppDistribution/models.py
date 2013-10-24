@@ -174,6 +174,15 @@ class AssetType(models.Model):
 
 class Tag(models.Model):
 
+    @classmethod
+    def get_or_create(self, tag_name):
+        try:
+            tag = Tag.objects.get(name__iexact=tag_name)
+        except Tag.DoesNotExist:
+            tag = Tag(name=tag_name)
+            tag.save()
+        return tag
+
     def __unicode__(self):
         return self.name
 
