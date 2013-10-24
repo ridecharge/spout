@@ -9,7 +9,6 @@ from androguard.core import androconf
 from androguard.core.bytecodes import apk
 from elementtree.ElementTree import Element, parse
 from xml.dom import minidom
-from md5 import md5
 from uuid import uuid1
 
 from django.core.files import File
@@ -21,11 +20,11 @@ from UnCrushPNG import updatePNG
 
 class PackageHandler(object):
 
-    def __init__(self, app):
-        if app.device_type == "IOS":
-            self.handler = iOSPackageHandler(app)
-        elif app.device_type == "ANDROID":
-            self.handler = AndroidPackageHandler(package_fp, app)
+    def __init__(self, asset):
+        if asset.app.device_type == "IOS":
+            self.handler = iOSPackageHandler(asset)
+        elif asset.app.device_type == "ANDROID":
+            self.handler = AndroidPackageHandler(asset)
             
 
     def handle(self):
@@ -33,39 +32,24 @@ class PackageHandler(object):
 
 class AndroidPackageHandler(object):
 
-    def __init__(self, apk_fp, app):
+    def __init__(self, asset):
 
 
-
-
+        self.app = asset.app
         temp_file, temp_file_path = mkstemp()
         temp_file = open(temp_file_path, "w")
-        shutil.copyfileobj(apk_fp, temp_file)
+        shutil.copyfile(asset.name, temp_file) 
         temp_file.close()
         
         self.apk_path = temp_file_path
-
-        self.app = app
-        self.a = apk.APK(self.apk_path)
-        md5_raw = x = md5(self.a.get_dex()).hexdigest().upper()
-        self.uuid = "%s-%s-%s-%s-%s" % (x[0:8], x[8:12], x[12:16], x[16:20], x[20:32]) 
-        self.name = self.a.package
-        self.version = self.a.get_androidversion_name()
+        self.apk_file = apk.APK(self.apk_path)
 
     def handle_package(self):
 
-        creation_date = datetime.now()
-        self.app.version = self.version
-        self.app.name = self.name
-        self.app.uuid = self.uuid
-        self.app.creation_date = creation_date
+        self.app.version = self.apk_file.get_androidversion_name()
+        self.app.name = self.apk_file.package
         self.hax_save_icon_file()
-        self.save_apk()
         
-    def save_apk(self):
-
-        shutil.move(self.apk_path, "%s/%s.apk" % (settings.MEDIA_ROOT, self.uuid))
-
     def hax_save_icon_file(self):
 
         temp_file, temp_file_path = mkstemp()
@@ -107,14 +91,14 @@ class AndroidPackageHandler(object):
 
 class iOSPackageHandler(object):
 
-    def __init__(self, app):
+    def __init__(self, asset):
 
-        self.ipa_asset = app.assets.get(primary=True)
+        self.ipa_asset = asset
         self.ipa_file = ZipFile(self.ipa_asset.asset_file.path) 
         self.temp_dir = mkdtemp()
         self.ipa_file_path = self.ipa_asset.asset_file.path
         self.ipa_plist = self.plist_from_ipa()
-        self.app = app
+        self.app = asset.app
 
     def handle_package(self):
 
@@ -123,6 +107,7 @@ class iOSPackageHandler(object):
         self.app.version = self.ipa_plist['CFBundleVersion']
         self.app.name = self.ipa_plist['CFBundleName']
         self.app.device_type = "IOS"
+        self.app.save()
 
     def extract_app_name(self): 
 
