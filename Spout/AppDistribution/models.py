@@ -141,12 +141,11 @@ class AppAsset(models.Model):
     def filename(self):
         tags = self.app.tags.all()
         tag_string = ""
-        if tags.count > 0:
+        if tags.count() > 0:
             tag_string = "-"
             tag_string += ("-".join([t.name for t in tags]))
 
-           
-        filename = "%s%s-%s" % (self.app.product.name, tag_string, self.app.version)
+        filename = "%s%s-%s%s" % (self.app.product.name, tag_string, self.app.version, self.asset_type.extension)
         return filename
 
     app = models.ForeignKey('App', related_name='assets', null=True)
@@ -166,6 +165,7 @@ class AssetType(models.Model):
             asset_type = AssetType.objects.get(extension=extension)
         except AssetType.DoesNotExist:
             asset_type = AssetType(extension=extension)
+            asset_type.save()
 
         return asset_type
 
