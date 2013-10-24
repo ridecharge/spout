@@ -60,7 +60,6 @@ def add_asset_to_app(request, app_id):
 
     if request.method == "POST":
         form = forms.UploadAppAssetForm(request.POST, request.FILES)
-        import pdb;pdb.set_trace()
         if form.is_valid():
             app = App.objects.get(id=app_id)
             asset = form.save(commit=False)
@@ -96,7 +95,6 @@ def upload_build(request):
 @csrf_exempt
 def post_crash(request):
 
-    print request.body;
     
     if request.body:
         """
@@ -415,8 +413,22 @@ def all_tags(request):
 
     return HttpResponse(content=json_string, mimetype="application/json")
 
-def get_package(request, uuid, extension):
+def get_app_asset(request, app_id, asset_id, extension):
 
-    handler = GetRequestHandler(request).handler()
-    return handler.respond()
+    app = App.objects.get(id=app_id)
+
+    if extension is not None and extension in GetRequestHandler.handled_extensions:
+        response = GetRequestHandler(request, app, extension).handler().respond()
+    else:
+        asset = app.assets.get(id=asset_id)
+        response = HttpResponse(content=asset.asset_file, content_type="application/octet-stream")
+        response['Content-Disposition'] = 'attachment; filename=%s' % app.primary_asset.filename
+
+    return response
+
+def get_app_package_redirect(request, app_id):
+
+    app = App.objects.get(id=app_id)
+    response = PackageHttpResponseFactory(request).response(app)
+    return response
 
