@@ -9,7 +9,6 @@ from androguard.core import androconf
 from androguard.core.bytecodes import apk
 from elementtree.ElementTree import Element, parse
 from xml.dom import minidom
-from md5 import md5
 
 from django.core.files import File
 
@@ -41,7 +40,6 @@ class UploadRequestHandler:
 
     def __init__(self, request):
 
-        self.package_type = request.POST[package_type_key]
         self.request = request
 
     def validate(self, post_form):
@@ -51,18 +49,19 @@ class UploadRequestHandler:
     
     def process_upload(self):
 
-        handler = upload_package_handlers[self.package_type]
-        handler = handler(self.request)
+        handler = UploadHandler(self.request)
 
-        handler.handle_package()
+        handler.handle_upload()
 
 
-class BaseUploadHandler(object):
+class UploadHandler(object):
     
     def __init__(self, request):
         self.request = request
         self.temp_dir = mkdtemp()
         self.product = Product.objects.get(name__iexact=request.POST['product'])
+        self.note = request.POST['note']
+        self.device_type = self.request.POST[package_type_key].upper()
 
     def add_tag(self, app):
  
@@ -81,63 +80,19 @@ class BaseUploadHandler(object):
         if tag: 
             app.tags.add(tag)
       
+    def handle_upload(self):
 
-
-class AndroidPackageUploadHandler(BaseUploadHandler):
-
-    def __init__(self, request):
-        super(AndroidPackageUploadHandler, self).__init__(request)
-
-        self.temp_apk_path = save_uploaded_file_to_temp(request.FILES[package_key])
-        self.note = request.POST['note']
-
-
-    def handle_package(self):
-
-        device_type = self.request.POST[package_type_key].upper()
-
-        app = App(note=self.note, product=self.product, device_type=device_type)
-        app.package = File(open(self.temp_apk_path))
+        app = App(note=self.note, product=self.product, device_type=self.device_type)
         app.save()
         self.add_tag(app)
-        app.save()
 
-class iOSPackageUploadHandler(BaseUploadHandler):
+        for file_key in self.request.FILES:
+            temp_file = save_uploaded_file_to_temp(self.request.FILES[file_key])
+            open_temp = File(open(temp_file))
+            asset = AppAsset(app=app, asset_file=open_temp)
+            if file_key == "app_package":
+              asset.primary = True
 
-
-    def __init__(self, request):
-
-        super(iOSPackageUploadHandler, self).__init__(request)
-
-        self.ipa = request.FILES[package_key]
-
-        if dsym_key in request.FILES:
-            self.dsym = request.FILES[dsym_key]
+            asset.save()
 
 
-    def respond(self):
-
-        self.handle_package()
-        ret_val = HttpResponseRedirect("/apps/list")
-
-        return ret_val
-
-    def handle_package(self):
-
-        app = App()
-
-        app.package = self.ipa
-        if 'note' in self.request.POST.keys(): 
-            app.note = self.request.POST['note'] 
-
-        app.product = Product.objects.get(name__iexact=self.request.POST['product']) # fetch product by name, case insensitive
-        app.save()
-
-        dsym_asset = AppAsset(asset_file=self.dsym, type="dsym")
-        dsym_asset.save()
-        app.assets.add(dsym_asset)
-
-        self.add_tag(app)
-        app.save()
-
-upload_package_handlers = dict({ 'IOS' : iOSPackageUploadHandler, 'ANDROID' : AndroidPackageUploadHandler })
