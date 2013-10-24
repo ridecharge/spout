@@ -6,7 +6,6 @@ import AppDistribution
 from django.contrib import admin
 admin.autodiscover()
 tag_regex = r'[\w\/-]+'
-uuid_regex = r'([A-Z0-9]{8}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{4}-[A-Z0-9]{12})'
 
 urlpatterns = patterns('AppDistribution.views',
     # Examples:
@@ -30,13 +29,13 @@ urlpatterns = patterns('AppDistribution.views',
      url(r'^apps/tag/(?P<tag_name>%s)' % tag_regex , 'tagged_apps'),
      url(r'^apps/filter', 'filtered_apps'),
 
-     url(r'^app/(?P<uuid>%s).(?P<extension>\w+)' % uuid_regex, 'get_package'),
-
      url(r'^app/(?P<app_id>\w+)/tag/(?P<tag_name>%s)' % tag_regex, 'toggle_tag'),
      url(r'^app/(?P<app_id>\w+)/tag/(?P<tag_name>\w+)', 'toggle_tag'),
      url(r'^app/(?P<app_id>\w+)/tag', 'app_tag'),
      url(r'^app/tags/all', 'all_tags'),
-     url(r'^app/asset/(?P<uuid>%s)$' % uuid_regex, 'asset_redirect'),
+     url(r'^app/create', 'create_app'),
+
+     url(r'^app/(?P<app_id>\w+)/asset/add', 'add_asset_to_app'),
 
      url(r'^page/(?P<page_slug>[-\w]+)$', 'page'),
 

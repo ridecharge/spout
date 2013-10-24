@@ -4,6 +4,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
 from django.db import IntegrityError
 from django.template import RequestContext, Context, Template
+from django.db.models import Q
 
 
 from datetime import datetime
@@ -21,6 +22,55 @@ from ResponseFactory import PackageHttpResponseFactory
 from AppDistribution.models import *
 from AppDistribution import settings
 from AppDistribution import forms
+
+@csrf_exempt
+def create_app(request):
+
+    if request.method == "POST":
+        form = forms.UploadAppForm(request.POST)
+        if form.is_valid():
+            try:
+                product_string = form.cleaned_data['product']
+                product = Product.objects.get(name__iexact=product_string)
+            except Product.DoesNotExist:
+                pass
+
+            new_app = App(product=product, note=form.cleaned_data['note'])
+            try:
+                tag_list = form.cleaned_data['tags']
+                query_list = map(lambda x: Q(name__iexact=x), tag_list)
+                query_list = reduce(lambda a, b: a | b, query_list)
+                tags = Tag.objects.filter(query_list)
+            except:
+                pass
+
+            new_app.save()
+
+            json_dict = {'new_app_id' : new_app.id}
+            return HttpResponse(content=json.dumps(json_dict), mimetype="application/json")
+        else:
+            return HttpResponse(content=json.dumps(form.errors), mimetype="application/json")
+    else:
+        form = forms.UploadAppForm()
+        return render_to_response("forms/upload.html", {'form' : form})
+
+
+@csrf_exempt
+def add_asset_to_app(request, app_id):
+
+    if request.method == "POST":
+        form = forms.UploadAppAssetForm(request.POST, request.FILES)
+        import pdb;pdb.set_trace()
+        if form.is_valid():
+            app = App.objects.get(id=app_id)
+            asset = form.save(commit=False)
+            asset.app = app
+            asset.save()
+            response_dict = {'app' : app.id, 'added_asset' : {'id' : asset.id, 'primary' : asset.primary}}
+            return HttpResponse(content=json.dumps(response_dict), mimetype="application/json")
+        else:
+            return HttpResponse(content=json.dumps(form.errors), mimetype="application/json")
+
 
 
 @csrf_exempt
