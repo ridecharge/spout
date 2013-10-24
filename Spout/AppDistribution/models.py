@@ -137,17 +137,24 @@ class AppAsset(models.Model):
     def __unicode__(self):
         return self.asset_file.name
 
-    def save(self, *args, **kwargs):
-        extension = splitext(self.asset_file.name)
-        self.asset_type = AssetType.get_or_create(extension)
-        super(AppAsset, self).save(*args, **kwargs)
+    @property
+    def filename(self):
+        tags = self.app.tags.all()
+        tag_string = ""
+        if tags.count > 0:
+            tag_string = "-"
+            tag_string += ("-".join([t.name for t in tags]))
+
+           
+        filename = "%s%s-%s" % (self.app.product.name, tag_string, self.app.version)
+        return filename
 
     app = models.ForeignKey('App', related_name='assets', null=True)
 
     primary = models.BooleanField()
     uuid = models.CharField(max_length=255, null=True, blank=True)
-    asset_type = models.ForeignKey('AssetType', null=True)
     asset_file = models.FileField(upload_to=settings.APP_PACKAGE_ROOT)
+    asset_type = models.ForeignKey('AssetType', null=True, blank=True)
 
        
 class AssetType(models.Model):
