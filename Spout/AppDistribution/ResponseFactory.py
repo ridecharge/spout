@@ -1,5 +1,4 @@
 from django.http.response import HttpResponseRedirect
-
 class PackageHttpResponseFactory(object):
 
     def __init__(self, request):
@@ -24,8 +23,9 @@ class PackageHttpResponseFactory(object):
             return self.ipa_url(app)
 
     def apk_url(self, app):
-        return "http://%s/app/%s.apk" % (self.request.get_host(), app.uuid)
+        return "http://%s/app/%s/asset/%s.apk" % (self.request.get_host(), app.id, app.primary_asset.id)
 
     def ipa_url(self, app):
-        return "itms-services://?action=download-manifest&url=http://%s/app/%s.plist" % (self.request.get_host(), app.uuid)
+        url_string = "itms-services://?action=download-manifest&url=http://%s/app/%s/asset/%s.plist" % (self.request.get_host(), app.id, app.primary_asset.id)
+        return url_string
 
