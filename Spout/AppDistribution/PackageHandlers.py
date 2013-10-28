@@ -37,9 +37,7 @@ class AndroidPackageHandler(object):
 
         self.app = asset.app
         temp_file, temp_file_path = mkstemp()
-        temp_file = open(temp_file_path, "w")
-        shutil.copyfile(asset.name, temp_file) 
-        temp_file.close()
+        shutil.copyfile(asset.asset_file.name, temp_file_path) 
         
         self.apk_path = temp_file_path
         self.apk_file = apk.APK(self.apk_path)
@@ -49,21 +47,19 @@ class AndroidPackageHandler(object):
         self.app.version = self.apk_file.get_androidversion_name()
         self.app.name = self.apk_file.package
         self.hax_save_icon_file()
+        self.app.save()
         
     def hax_save_icon_file(self):
 
         temp_file, temp_file_path = mkstemp()
         temp_file = open(temp_file_path, "w")
 
-        icons = [{'size' : len(self.a.get_file(x)), 'file' : self.a.get_file(x)} for x in self.a.files if "ic_launcher" in x] #TODO 
+        icons = [{'size' : len(self.apk_file.get_file(x)), 'file' : self.apk_file.get_file(x)} for x in self.apk_file.files if "ic_launcher" in x] #TODO 
         icons = sorted(icons, key=lambda x: x['size'])
         largest_icon_data = icons[-1]['file']
         temp_file.write(largest_icon_data)
         temp_file.close()
         self.app.icon = File(open(temp_file_path, "r"))
-        shutil.move(temp_file_path, "%s/%s.png" % (settings.MEDIA_ROOT, self.uuid))
-
-
 
     def save_icon_files(self):
 
