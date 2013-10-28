@@ -186,10 +186,10 @@ class Tag(models.Model):
     def __unicode__(self):
         return self.name
 
-    def _short_description(self):
+    @property
+    def short_description(self):
         return self.description if len(self.description) > 0 else self.name
 
-    short_description = property(_short_description)
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, blank=True, null=True)
 

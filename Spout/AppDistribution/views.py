@@ -72,7 +72,6 @@ def add_asset_to_app(request, app_id):
             return HttpResponse(content=json.dumps(form.errors), mimetype="application/json")
 
 
-
 @csrf_exempt
 def upload_build(request):
 
@@ -448,6 +447,9 @@ def get_app_asset(request, app_id, asset_id, extension):
 def get_app_package_redirect(request, app_id):
 
     app = App.objects.get(id=app_id)
+    app.download_count += 1
+    app.save()
+    
     response = PackageHttpResponseFactory(request).response(app)
     return response
 
