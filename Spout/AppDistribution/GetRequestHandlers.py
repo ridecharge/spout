@@ -46,11 +46,6 @@ class iOSGetRequestHandler(BaseGetRequestHandler):
                                        "bundle_version": bundle_version,
                                             "app_title": app_title}, mimetype="application/xml")
 
-    def __ipa_response(self):
-
-        self.app.package.open()
-        return HttpResponse(content=self.app.package, mimetype="application/octet-stream")
-
     def __plist_from_ipa(self, ipa_file):
 
         ipa_contents = ipa_file.filelist

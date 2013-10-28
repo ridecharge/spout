@@ -27,7 +27,8 @@ from PackageHandlers import *
 
 def save_uploaded_file_to_temp(file_from_form):
 
-    temp_file, temp_file_path = mkstemp()
+    temp_file_dir = mkdtemp()
+    temp_file_path = "%s/%s" % (temp_file_dir, file_from_form.name)
     temp_file = open(temp_file_path, 'w')
 
     for chunk in file_from_form.chunks():
