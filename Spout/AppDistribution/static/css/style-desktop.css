@@ -97,6 +97,7 @@
 
 			#page-header nav ul
 			{
+                display: inline;
 			}
 
 				#page-header nav ul li

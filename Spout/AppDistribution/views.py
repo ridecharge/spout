@@ -37,11 +37,16 @@ def create_app(request):
                 pass
 
             new_app = App(product=product, note=form.cleaned_data['note'])
+            new_app.save()
             try:
-                tag_list = form.cleaned_data['tags']
-                query_list = map(lambda x: Q(name__iexact=x), tag_list)
-                query_list = reduce(lambda a, b: a | b, query_list)
-                tags = Tag.objects.filter(query_list)
+                tag_list = form.cleaned_data['tags'].split(',')
+                for tag_string in tag_list:
+                   tag = Tag.get_or_create(tag_string) 
+                   new_app.tags.add(tag)
+
+#                query_list = map(lambda x: Q(name__iexact=x), tag_list)
+#                query_list = reduce(lambda a, b: a | b, query_list)
+#                tags = Tag.objects.filter(query_list)
             except:
                 pass
 
