@@ -188,7 +188,10 @@ class Tag(models.Model):
 
     @property
     def short_description(self):
-        return self.description if len(self.description) > 0 else self.name
+        if self.description is not None and len(self.description) > 0:
+            return self.description
+        else:
+            return self.name
 
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255, blank=True, null=True)
