@@ -7,6 +7,7 @@ from django.contrib.auth import models as auth_app, get_user_model
 from django.contrib.auth.models import User
 from AppDistribution.models import *
 from datetime import datetime 
+from hashlib import md5
 
 
 
@@ -22,8 +23,11 @@ def delete_app(sender, instance, signal, *args, **kwargs):
 def post_save_asset(sender, instance, signal, *args, **kwargs):
 
     if instance.primary is True:
-        handler = PackageHandler(instance)
-        handler.handle()
+        asset_file = open(instance.asset_file.path)
+        file_hash = md5(asset_file.read())
+        if instance.file_hash != file_hash.hexdigest(): 
+            handler = PackageHandler(instance)
+            handler.handle()
 
     if instance.asset_type == None:
         extension = splitext(instance.asset_file.name)
