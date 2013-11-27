@@ -151,7 +151,9 @@ class AppAsset(models.Model):
     app = models.ForeignKey('App', related_name='assets', null=True)
 
     primary = models.BooleanField()
+    external_url = models.URLField(null=True, blank=True)
     uuid = models.CharField(max_length=255, null=True, blank=True)
+    file_hash = models.CharField(max_length=255, null=True, blank=True)
     asset_file = models.FileField(upload_to=settings.APP_PACKAGE_ROOT)
     asset_type = models.ForeignKey('AssetType', null=True, blank=True)
 
