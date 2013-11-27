@@ -37,7 +37,8 @@ class AppAssetForm(forms.ModelForm):
 class AppAssetInline(admin.TabularInline):
 
     model = AppAsset
-    readonly_fields = ('uuid', 'asset_type',)
+    readonly_fields = ('uuid', 'asset_type', 'external_url')
+    exclude = ('file_hash',)
 
     
 class AppAdmin(admin.ModelAdmin):
