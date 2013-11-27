@@ -17,10 +17,15 @@ from AppDistribution.models import *
 from AppDistribution import settings
 from UnCrushPNG import updatePNG
 
+from boto.s3.connection import S3Connection
+from boto.s3.key import Key
+from hashlib import md5
+
 
 class PackageHandler(object):
 
     def __init__(self, asset):
+        self.asset = asset
         if asset.app.device_type == "IOS":
             self.handler = iOSPackageHandler(asset)
         elif asset.app.device_type == "ANDROID":
@@ -29,6 +34,38 @@ class PackageHandler(object):
 
     def handle(self):
         self.handler.handle_package()
+        asset_fp = open(self.asset.asset_file.path)
+        file_hash = md5(asset_fp.read())
+
+        self.asset.file_hash = file_hash.hexdigest()
+        self.asset.save()
+        self.upload_asset_to_s3(self.asset)
+
+
+    def upload_asset_to_s3(self, asset):
+
+        connection = S3Connection(settings.AWS_ACCESS_KEY, settings.AWS_SECRET_KEY)
+
+        asset_bucket = connection.get_bucket(settings.S3_ASSET_BUCKET)
+        asset_path = asset.asset_file.path
+        asset_file = open(asset_path)
+
+        tag_string = "-".join([tag.name.replace("/", "-") for tag in asset.app.tags.all()])
+        product = asset.app.product.name
+        file_extension = os.path.splitext(asset_path)[-1]
+        version = asset.app.version
+
+        key_name = "%s-%s-%s%s" % (product, tag_string, version, file_extension)
+
+        app_key = Key(asset_bucket, key_name)
+        app_key.set_contents_from_file(open(asset_path))
+        app_key.make_public()
+        metadata = {'version' : version, 'product' : product}
+        app_key.set_remote_metadata(metadata, {}, preserve_acl=True)
+        asset.external_url = app_key.generate_url(0, query_auth=False)
+        asset.save()
+
+
 
 class AndroidPackageHandler(object):
 
