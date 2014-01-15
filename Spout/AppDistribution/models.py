@@ -160,6 +160,9 @@ class AppAsset(models.Model):
        
 class AssetType(models.Model):
 
+    def __unicode__:
+        return name
+
     @classmethod
     def get_or_create(self, extension):
 
