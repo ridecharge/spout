@@ -161,7 +161,7 @@ class AppAsset(models.Model):
 class AssetType(models.Model):
 
     def __unicode__(self):
-        return name
+        return self.name
 
     @classmethod
     def get_or_create(self, extension):
