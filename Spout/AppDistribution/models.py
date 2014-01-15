@@ -160,7 +160,7 @@ class AppAsset(models.Model):
        
 class AssetType(models.Model):
 
-    def __unicode__:
+    def __unicode__(self):
         return name
 
     @classmethod
