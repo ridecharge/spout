@@ -161,7 +161,10 @@ class AppAsset(models.Model):
 class AssetType(models.Model):
 
     def __unicode__(self):
-        return self.name
+        if(self.name):
+            return "%s - ext %s" % (self.name, self.extension)
+        else:
+            return self.extension
 
     @classmethod
     def get_or_create(self, extension):
