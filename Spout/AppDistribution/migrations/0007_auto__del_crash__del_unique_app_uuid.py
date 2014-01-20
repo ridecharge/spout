@@ -8,12 +8,12 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Removing unique constraint on 'App', fields ['uuid']
-        db.delete_unique(u'AppDistribution_app', ['uuid'])
 
         # Deleting model 'Crash'
         db.delete_table(u'AppDistribution_crash')
 
+        # Removing unique constraint on 'App', fields ['uuid']
+        db.delete_unique(u'AppDistribution_app', ['uuid'])
 
     def backwards(self, orm):
         # Adding model 'Crash'
