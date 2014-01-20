@@ -11,7 +11,7 @@ bpython
 distribute
 django-bitfield==1.6.4
 django-tinymce==1.5.1b2
-elementtree==1.2.7-20070827-preview
+https://savory.googlecode.com/files/elementtree-1.2.7-20070827-preview.zip
 gitdb==0.5.4
 gunicorn==0.16.1
 paramiko==1.9.0
