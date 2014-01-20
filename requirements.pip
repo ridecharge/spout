@@ -7,8 +7,8 @@ South==0.7.6
 http://androguard.googlecode.com/files/androguard-1.9.tar.gz#egg=androguard
 async==0.6.1
 biplist==0.5
-bpython==0.11
-distribute==0.6.30
+bpython
+distribute
 django-bitfield==1.6.4
 django-tinymce==1.5.1b2
 elementtree==1.2.7-20070827-preview
