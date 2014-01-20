@@ -10,6 +10,7 @@ biplist==0.5
 bpython
 distribute
 django-bitfield==1.6.4
+django-wysiwyg
 django-tinymce==1.5.1b2
 https://savory.googlecode.com/files/elementtree-1.2.7-20070827-preview.zip
 gitdb==0.5.4
