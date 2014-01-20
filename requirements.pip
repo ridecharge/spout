@@ -22,3 +22,4 @@ pypng==0.0.13
 six==1.2.0
 smmap==0.8.2
 boto==2.19.0
+pysqlite
