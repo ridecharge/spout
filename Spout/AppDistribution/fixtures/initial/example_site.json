@@ -1,1 +1,11 @@
-[{"pk": 1, "model": "AppDistribution.spoutsite", "fields": {"home_page": 1, "domain": "http://example.com", "name": "Example Site"}}]
+[
+  {
+    "pk": 0,
+    "model": "AppDistribution.spoutsite",
+    "fields": {
+      "home_page": 1,
+      "domain": "http://example.com",
+      "name": "Example Site"
+    }
+  }
+]
