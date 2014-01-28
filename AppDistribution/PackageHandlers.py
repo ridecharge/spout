@@ -16,9 +16,7 @@ from django.core.files import File
 from AppDistribution.models import *
 from AppDistribution import settings
 from UnCrushPNG import updatePNG
-
-from boto.s3.connection import S3Connection
-from boto.s3.key import Key
+from AppDistribution import S3UploadTask
 from hashlib import md5
 
 
@@ -39,7 +37,16 @@ class PackageHandler(object):
 
         self.asset.file_hash = file_hash.hexdigest()
         self.asset.save()
-        self.upload_asset_to_s3(self.asset)
+        from AppDistribution.models import SpoutSite
+        site = SpoutSite.objects.get_current()
+        try:
+            site = SpoutSite.objects.get_current()
+            if site.s3_upload_enabled:
+                S3UploadTask.upload_asset_to_s3.delay(self.asset, site.aws_access_key, site.aws_secret_key, site.s3_upload_bucket)
+        except:
+            #TODO: Let's log someday.
+            pass
+
 
 
     def upload_asset_to_s3(self, asset):
