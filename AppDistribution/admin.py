@@ -25,7 +25,7 @@ admin.site.unregister(Group)
 
 class SpoutSiteAdmin(admin.ModelAdmin):
     
-    list_display = ('home_page', )
+    list_display = ('name', 'domain', 'home_page', )
 
 admin.site.register(SpoutSite, SpoutSiteAdmin)
 

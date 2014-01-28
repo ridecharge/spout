@@ -59,6 +59,10 @@ class SpoutSite(models.Model):
     domain = models.CharField('domain name', max_length=100)
     name = models.CharField('display name', max_length=50)
     home_page = models.ForeignKey('Page', null=True)
+    s3_upload_enabled = models.BooleanField(default=False)
+    aws_access_key = models.CharField('AWS Access Key', max_length=100, blank=True, null=True)
+    aws_secret_key = models.CharField('AWS Secret Key', max_length=100, blank=True, null=True)
+    s3_upload_bucket = models.CharField('S3 Bucket', max_length=100, blank=True, null=True)
 
 
 
