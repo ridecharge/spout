@@ -320,10 +320,10 @@ def page(request, page_slug):
         if request.user.id != None and request.user.expiration_date != None and timezone.now() > request.user.expiration_date:
             return HttpResponse(content="Your user account has expired.  Please contact your admin for access.")
 
-        if page.requires_auth == False:
-                allowed_pages = Page.objects.filter(requires_auth=False)
+        if page.public == True:
+                allowed_pages = Page.objects.filter(public=True)
                 return render_to_response("page.html", {'page': page, 'allowed_pages' : allowed_pages}, context_instance=RequestContext(request))
-        elif (page.requires_auth and request.user.is_authenticated()):
+        elif (page.public == False and request.user.is_authenticated()):
 
             allowed_pages = request.user.allowed_pages.all()
             print allowed_pages

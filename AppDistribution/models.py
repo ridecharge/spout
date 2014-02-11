@@ -252,7 +252,7 @@ class Page(models.Model):
     heading = models.CharField(max_length=255, blank=True, null=True)
     top_html = models.TextField(blank=True, null=True)
     slug = models.SlugField()
-    requires_auth = models.BooleanField()
+    public = models.BooleanField()
     expiration_date = models.DateTimeField(blank=True, null=True)
     group_by = models.CharField(choices=GROUP_BY_CHOICES, max_length=100, blank=True, null=True)
 
