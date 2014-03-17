@@ -30,7 +30,7 @@ class PackageHttpResponseFactory(object):
         user_agent_string = self.request.META['HTTP_USER_AGENT']
 
         if "iPhone" in user_agent_string:
-            url_string = "itms-services://?action=download-manifest&url=http://%s/app/%s/asset/%s.plist" % (self.request.get_host(), app.id, app.primary_asset.id)
+            url_string = "itms-services://?action=download-manifest&url=https://%s/app/%s/asset/%s.plist" % (self.request.get_host(), app.id, app.primary_asset.id)
         else:
             url_string = "http://%s/app/%s/asset/%s" % (self.request.get_host(), app.id, app.primary_asset.id)
         print url_string
