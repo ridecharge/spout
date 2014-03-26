@@ -31,7 +31,7 @@ class iOSGetRequestHandler(BaseGetRequestHandler):
         theZip = ZipFile(self.app.primary_asset.asset_file.path)
         parsed_dict = self.__plist_from_ipa(theZip)
 
-        url = "http://%s/app/%s/asset/%s" % (self.request.get_host(), self.app.id, self.app.primary_asset.id) 
+        url = "https://%s/app/%s/asset/%s" % ('spout.ridecharge.com', self.app.id, self.app.primary_asset.id) 
         bundle_id = parsed_dict['CFBundleIdentifier']
         bundle_version = parsed_dict['CFBundleVersion']
         app_title = parsed_dict['CFBundleName']
